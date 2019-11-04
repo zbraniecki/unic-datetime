@@ -1,5 +1,5 @@
 /* DateTime */
-struct DateTime {
+pub struct DateTime {
     pub year: usize,
     pub month: usize,
     pub day: usize,
@@ -9,14 +9,21 @@ struct DateTime {
 }
 
 impl DateTime {
-    pub fn new(instant: usize) -> Self {
+    pub fn new(
+        year: usize,
+        month: usize,
+        day: usize,
+        hour: usize,
+        minute: usize,
+        second: usize,
+    ) -> Self {
         Self {
-            year: 2019,
-            month: 10,
-            day: 29,
-            hour: 10,
-            minute: 23,
-            second: 05,
+            year,
+            month,
+            day,
+            hour,
+            minute,
+            second,
         }
     }
 }
@@ -46,7 +53,8 @@ const PL_MONTH_NAMES_ABBREVIATED: [&str; 12] = [
 
 /* DateTimeFormat */
 
-enum DateStyle {
+#[derive(Clone, Copy)]
+pub enum DateStyle {
     FULL,
     LONG,
     MEDIUM,
@@ -64,7 +72,8 @@ impl DateStyle {
     }
 }
 
-enum TimeStyle {
+#[derive(Clone, Copy)]
+pub enum TimeStyle {
     FULL,
     LONG,
     MEDIUM,
@@ -82,14 +91,18 @@ impl TimeStyle {
     }
 }
 
-struct DateTimeFormat {
+pub struct DateTimeFormat {
     pattern: String,
     month_names_wide: &'static [&'static str],
     month_names_abbreviated: &'static [&'static str],
 }
 
 impl DateTimeFormat {
-    pub fn new(locale: &str, date_style: Option<DateStyle>, time_style: Option<TimeStyle>) -> Self {
+    pub fn new(
+        _locale: &str,
+        date_style: Option<DateStyle>,
+        time_style: Option<TimeStyle>,
+    ) -> Self {
         let pattern = match (date_style, time_style) {
             (Some(date_style), Some(time_style)) => {
                 let connector = PL_DATE_TIME_PATTERNS[date_style.idx()];
@@ -115,15 +128,18 @@ impl DateTimeFormat {
         let month_name_abbreviated = self.month_names_abbreviated[value.month - 1];
         self.pattern
             .clone()
+            .replace("zzzz", "Pacific Dailight Time")
+            .replace("z", "PDT")
             .replace("dd", &format_number(value.day, true))
             .replace("d", &format_number(value.day, false))
-            .replace("MMMM", month_name_wide)
-            .replace("MMM", month_name_abbreviated)
-            .replace("MM", &format_number(value.month, true))
             .replace("y", &format_number(value.year, false))
             .replace("HH", &format_number(value.hour, true))
             .replace("mm", &format_number(value.minute, true))
             .replace("ss", &format_number(value.second, true))
+            .replace("EEEE", "Wtorek")
+            .replace("MMMM", month_name_wide)
+            .replace("MMM", month_name_abbreviated)
+            .replace("MM", &format_number(value.month, true))
     }
 }
 
@@ -143,7 +159,7 @@ mod tests {
 
     #[test]
     fn it_works() {
-        let dt = DateTime::new(0);
+        let dt = DateTime::new(2019, 10, 29, 10, 23, 5);
         let dtf = DateTimeFormat::new("pl", Some(DateStyle::LONG), None);
         assert_eq!(dtf.format(&dt), "29 października 2019");
 
