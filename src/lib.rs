@@ -1,6 +1,9 @@
-mod data;
+// XXX: This should be private, since we want to be able to modify the internal
+// data layout without breaking version.
+// Unfortunately, we use this for data generation binary.
+pub mod data;
 
-use data::{PL_DATE_FORMATS, PL_DATE_TIME_FORMATS, PL_GREGORIAN_MONTHS, PL_TIME_FORMATS};
+use data::pl::CALENDAR_DATA as PL_CALENDAR_DATA;
 
 /* DateTime */
 pub struct DateTime {
@@ -74,7 +77,7 @@ impl TimeStyle {
 
 pub struct DateTimeFormat {
     pattern: String,
-    month_names: &'static data::layout::GregorianMonths,
+    calendar_data: &'static data::layout::CalendarData<&'static str>,
 }
 
 impl DateTimeFormat {
@@ -85,30 +88,32 @@ impl DateTimeFormat {
     ) -> Self {
         let pattern = match (date_style, time_style) {
             (Some(date_style), Some(time_style)) => {
-                let connector = &PL_DATE_TIME_FORMATS.0[date_style.idx()];
-                let date_pattern = PL_DATE_FORMATS.0[date_style.idx()];
-                let time_pattern = PL_TIME_FORMATS.0[time_style.idx()];
+                let connector = &PL_CALENDAR_DATA.date_time_formats[date_style.idx()];
+                let date_pattern = PL_CALENDAR_DATA.date_formats[date_style.idx()];
+                let time_pattern = PL_CALENDAR_DATA.time_formats[time_style.idx()];
                 connector
                     .replace("{1}", date_pattern)
                     .replace("{0}", time_pattern)
             }
-            (Some(date_style), None) => PL_DATE_FORMATS.0[date_style.idx()].to_string(),
-            (None, Some(time_style)) => PL_TIME_FORMATS.0[time_style.idx()].to_string(),
+            (Some(date_style), None) => PL_CALENDAR_DATA.date_formats[date_style.idx()].to_string(),
+            (None, Some(time_style)) => PL_CALENDAR_DATA.time_formats[time_style.idx()].to_string(),
             (None, None) => panic!(),
         };
         Self {
             pattern,
-            month_names: &PL_GREGORIAN_MONTHS,
+            calendar_data: &PL_CALENDAR_DATA,
         }
     }
 
     pub fn format(&self, value: &DateTime) -> String {
         let month_names_wide = self
-            .month_names
+            .calendar_data
+            .months
             .get_list(false, data::layout::MonthNamesLength::WIDE)
             .unwrap();
         let month_names_abbreviated = self
-            .month_names
+            .calendar_data
+            .months
             .get_list(false, data::layout::MonthNamesLength::ABBREVIATED)
             .unwrap();
         let month_name_wide = month_names_wide[value.month - 1];
