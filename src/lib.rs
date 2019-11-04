@@ -1,3 +1,7 @@
+mod data;
+
+use data::{PL_DATE_FORMATS, PL_DATE_TIME_FORMATS, PL_GREGORIAN_MONTHS, PL_TIME_FORMATS};
+
 /* DateTime */
 pub struct DateTime {
     pub year: usize,
@@ -27,29 +31,6 @@ impl DateTime {
         }
     }
 }
-
-/* Data */
-const PL_DATE_PATTERNS: [&str; 4] = ["EEEE, d MMMM y", "d MMMM y", "d MMM y", "dd.MM.y"];
-const PL_TIME_PATTERNS: [&str; 4] = ["HH:mm:ss zzzz", "HH:mm:ss z", "HH:mm:ss", "HH:mm"];
-const PL_DATE_TIME_PATTERNS: [&str; 4] = ["{1} {0}", "{1} {0}", "{1}, {0}", "{1}, {0}"];
-
-const PL_MONTH_NAMES_WIDE: [&str; 12] = [
-    "stycznia",
-    "lutego",
-    "marca",
-    "kwietnia",
-    "maja",
-    "czerwca",
-    "lipca",
-    "sierpnia",
-    "września",
-    "października",
-    "listopada",
-    "grudnia",
-];
-const PL_MONTH_NAMES_ABBREVIATED: [&str; 12] = [
-    "sty", "lut", "mar", "kwi", "maj", "cze", "lip", "sie", "wrz", "paź", "lis", "gru",
-];
 
 /* DateTimeFormat */
 
@@ -93,8 +74,7 @@ impl TimeStyle {
 
 pub struct DateTimeFormat {
     pattern: String,
-    month_names_wide: &'static [&'static str],
-    month_names_abbreviated: &'static [&'static str],
+    month_names: &'static data::layout::GregorianMonths,
 }
 
 impl DateTimeFormat {
@@ -105,27 +85,34 @@ impl DateTimeFormat {
     ) -> Self {
         let pattern = match (date_style, time_style) {
             (Some(date_style), Some(time_style)) => {
-                let connector = PL_DATE_TIME_PATTERNS[date_style.idx()];
-                let date_pattern = PL_DATE_PATTERNS[date_style.idx()];
-                let time_pattern = PL_TIME_PATTERNS[time_style.idx()];
+                let connector = &PL_DATE_TIME_FORMATS.0[date_style.idx()];
+                let date_pattern = PL_DATE_FORMATS.0[date_style.idx()];
+                let time_pattern = PL_TIME_FORMATS.0[time_style.idx()];
                 connector
                     .replace("{1}", date_pattern)
                     .replace("{0}", time_pattern)
             }
-            (Some(date_style), None) => PL_DATE_PATTERNS[date_style.idx()].to_string(),
-            (None, Some(time_style)) => PL_TIME_PATTERNS[time_style.idx()].to_string(),
+            (Some(date_style), None) => PL_DATE_FORMATS.0[date_style.idx()].to_string(),
+            (None, Some(time_style)) => PL_TIME_FORMATS.0[time_style.idx()].to_string(),
             (None, None) => panic!(),
         };
         Self {
             pattern,
-            month_names_wide: &PL_MONTH_NAMES_WIDE,
-            month_names_abbreviated: &PL_MONTH_NAMES_ABBREVIATED,
+            month_names: &PL_GREGORIAN_MONTHS,
         }
     }
 
     pub fn format(&self, value: &DateTime) -> String {
-        let month_name_wide = self.month_names_wide[value.month - 1];
-        let month_name_abbreviated = self.month_names_abbreviated[value.month - 1];
+        let month_names_wide = self
+            .month_names
+            .get_list(false, data::layout::MonthNamesLength::WIDE)
+            .unwrap();
+        let month_names_abbreviated = self
+            .month_names
+            .get_list(false, data::layout::MonthNamesLength::ABBREVIATED)
+            .unwrap();
+        let month_name_wide = month_names_wide[value.month - 1];
+        let month_name_abbreviated = month_names_abbreviated[value.month - 1];
         self.pattern
             .clone()
             .replace("zzzz", "Pacific Dailight Time")
