@@ -9,16 +9,16 @@ use unic_datetime::{DateStyle, TimeStyle};
 
 fn date_time(c: &mut Criterion) {
     let dates = &[
-        DateTime::new(2019, 10, 29, 10, 23, 5),
-        DateTime::new(2019, 1, 1, 10, 7, 35),
-        DateTime::new(2018, 11, 1, 1, 59, 25),
-        DateTime::new(2011, 7, 7, 2, 2, 59),
-        DateTime::new(2019, 10, 29, 10, 23, 5),
-        DateTime::new(2019, 10, 29, 10, 23, 5),
-        DateTime::new(2019, 10, 29, 10, 23, 5),
-        DateTime::new(2019, 10, 29, 10, 23, 5),
-        DateTime::new(2019, 10, 29, 10, 23, 5),
-        DateTime::new(2019, 10, 29, 10, 23, 5),
+        DateTime::new(2001, 9, 8, 18, 46, 40),
+        DateTime::new(2017, 7, 13, 19, 40, 0),
+        DateTime::new(2020, 9, 13, 5, 26, 40),
+        DateTime::new(2021, 1, 6, 22, 13, 20),
+        DateTime::new(2021, 5, 2, 17, 0, 0),
+        DateTime::new(2021, 8, 26, 10, 46, 40),
+        DateTime::new(2021, 12, 20, 3, 33, 20),
+        DateTime::new(2022, 4, 14, 22, 20, 0),
+        DateTime::new(2022, 8, 8, 16, 6, 40),
+        DateTime::new(2033, 5, 17, 20, 33, 20),
     ];
     let values = &[
         ("pl", Some(DateStyle::FULL), None),
