@@ -4,6 +4,7 @@
 pub mod data;
 
 use data::pl::CALENDAR_DATA as PL_CALENDAR_DATA;
+use std::borrow::Cow;
 
 /* DateTime */
 pub struct DateTime {
@@ -76,7 +77,7 @@ impl TimeStyle {
 }
 
 pub struct DateTimeFormat {
-    pattern: String,
+    pattern: Cow<'static, data::layout::Pattern<&'static str>>,
     calendar_data: &'static data::layout::CalendarData<&'static str>,
 }
 
@@ -88,15 +89,32 @@ impl DateTimeFormat {
     ) -> Self {
         let pattern = match (date_style, time_style) {
             (Some(date_style), Some(time_style)) => {
-                let connector = &PL_CALENDAR_DATA.date_time_formats[date_style.idx()];
-                let date_pattern = PL_CALENDAR_DATA.date_formats[date_style.idx()];
-                let time_pattern = PL_CALENDAR_DATA.time_formats[time_style.idx()];
-                connector
-                    .replace("{1}", date_pattern)
-                    .replace("{0}", time_pattern)
+                let mut pattern = PL_CALENDAR_DATA.date_time_formats[date_style.idx()].to_vec();
+
+                if let Some(idx) = pattern.iter().position(|s| {
+                    s == &data::layout::PatternElement::Token(data::layout::DateTimeToken::Sub1)
+                }) {
+                    pattern.splice(
+                        idx..(idx + 1),
+                        PL_CALENDAR_DATA.date_formats[date_style.idx()]
+                            .iter()
+                            .cloned(),
+                    );
+                }
+                if let Some(idx) = pattern.iter().position(|s| {
+                    s == &data::layout::PatternElement::Token(data::layout::DateTimeToken::Sub0)
+                }) {
+                    pattern.splice(
+                        idx..(idx + 1),
+                        PL_CALENDAR_DATA.time_formats[time_style.idx()]
+                            .iter()
+                            .cloned(),
+                    );
+                }
+                Cow::from(pattern)
             }
-            (Some(date_style), None) => PL_CALENDAR_DATA.date_formats[date_style.idx()].to_string(),
-            (None, Some(time_style)) => PL_CALENDAR_DATA.time_formats[time_style.idx()].to_string(),
+            (Some(date_style), None) => Cow::from(PL_CALENDAR_DATA.date_formats[date_style.idx()]),
+            (None, Some(time_style)) => Cow::from(PL_CALENDAR_DATA.time_formats[time_style.idx()]),
             (None, None) => panic!(),
         };
         Self {
@@ -106,42 +124,10 @@ impl DateTimeFormat {
     }
 
     pub fn format(&self, value: &DateTime) -> String {
-        let month_names_wide = self
-            .calendar_data
-            .months
-            .get_list(false, data::layout::MonthNamesLength::WIDE)
-            .unwrap();
-        let month_names_abbreviated = self
-            .calendar_data
-            .months
-            .get_list(false, data::layout::MonthNamesLength::ABBREVIATED)
-            .unwrap();
-        let month_name_wide = month_names_wide[value.month - 1];
-        let month_name_abbreviated = month_names_abbreviated[value.month - 1];
-        self.pattern
-            .clone()
-            .replace("zzzz", "Pacific Dailight Time")
-            .replace("z", "PDT")
-            .replace("dd", &format_number(value.day, true))
-            .replace("d", &format_number(value.day, false))
-            .replace("y", &format_number(value.year, false))
-            .replace("HH", &format_number(value.hour, true))
-            .replace("mm", &format_number(value.minute, true))
-            .replace("ss", &format_number(value.second, true))
-            .replace("EEEE", "Wtorek")
-            .replace("MMMM", month_name_wide)
-            .replace("MMM", month_name_abbreviated)
-            .replace("MM", &format_number(value.month, true))
-    }
-}
-
-fn format_number(num: usize, two_digit: bool) -> String {
-    if two_digit && num < 10 {
-        let mut s = String::from("0");
-        s.push_str(&num.to_string());
-        s
-    } else {
-        num.to_string()
+        let mut result = String::new();
+        self.calendar_data
+            .format_pattern(&mut result, &self.pattern, value);
+        result
     }
 }
 
