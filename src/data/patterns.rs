@@ -15,7 +15,7 @@ fn collect_literal(
     if literal_start == &idx {
         return;
     }
-    let slice = std::str::from_utf8(&input.as_ref()[*literal_start..idx]).unwrap();
+    let slice = std::str::from_utf8(&input[*literal_start..idx]).unwrap();
     result.push(PatternElement::Literal(Cow::Owned(slice.to_owned())));
     *literal_start = idx;
 }

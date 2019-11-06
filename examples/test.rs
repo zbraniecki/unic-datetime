@@ -28,7 +28,7 @@ fn main() {
         ("pl", Some(DateStyle::SHORT), Some(TimeStyle::SHORT)),
     ];
     for value in values {
-        let dtf = DateTimeFormat::new(value.0, value.1, value.2, None);
+        let dtf = DateTimeFormat::new_from_static(value.0, value.1, value.2);
         for date in dates {
             let s = dtf.format(date);
             println!("{}", s);

@@ -1,43 +1,41 @@
-  use serde_json::Value;
-  use std::borrow::Cow;
-  use std::fs;
-  use crate::data::layout::{
-      CalendarData, MonthList, MonthNames, MonthNamesTypes, Pattern,
-  };
-  use crate::data::patterns::parse_pattern;
+use crate::data::layout::{CalendarData, MonthList, MonthNames, MonthNamesTypes, Pattern};
+use crate::data::patterns::parse_pattern;
+use serde_json::Value;
+use std::borrow::Cow;
+use std::fs;
 
-  fn get_month_list(v: &Value) -> Option<MonthList> {
-      if let Some(values) = v.as_object() {
-          let mut list = Vec::new();
-          for i in 1..13 {
-              let name = values
-                  .get(&i.to_string())
-                  .unwrap()
-                  .as_str()
-                  .unwrap()
-                  .to_string();
-              list.push(name);
-          }
-          // XXX: I'm so sorry, Mom.
-          let array: [Cow<'static, str>; 12] = [
-              Cow::Owned(list[0].clone()),
-              Cow::Owned(list[1].clone()),
-              Cow::Owned(list[2].clone()),
-              Cow::Owned(list[3].clone()),
-              Cow::Owned(list[4].clone()),
-              Cow::Owned(list[5].clone()),
-              Cow::Owned(list[6].clone()),
-              Cow::Owned(list[7].clone()),
-              Cow::Owned(list[8].clone()),
-              Cow::Owned(list[9].clone()),
-              Cow::Owned(list[10].clone()),
-              Cow::Owned(list[11].clone()),
-          ];
-          Some(array)
-      } else {
-          None
-      }
-  }
+fn get_month_list(v: &Value) -> Option<MonthList> {
+    if let Some(values) = v.as_object() {
+        let mut list = Vec::new();
+        for i in 1..13 {
+            let name = values
+                .get(&i.to_string())
+                .unwrap()
+                .as_str()
+                .unwrap()
+                .to_string();
+            list.push(name);
+        }
+        // XXX: I'm so sorry, Mom.
+        let array: [Cow<'static, str>; 12] = [
+            Cow::Owned(list[0].clone()),
+            Cow::Owned(list[1].clone()),
+            Cow::Owned(list[2].clone()),
+            Cow::Owned(list[3].clone()),
+            Cow::Owned(list[4].clone()),
+            Cow::Owned(list[5].clone()),
+            Cow::Owned(list[6].clone()),
+            Cow::Owned(list[7].clone()),
+            Cow::Owned(list[8].clone()),
+            Cow::Owned(list[9].clone()),
+            Cow::Owned(list[10].clone()),
+            Cow::Owned(list[11].clone()),
+        ];
+        Some(array)
+    } else {
+        None
+    }
+}
 
 fn get_months_data(v: &Value) -> Option<MonthNamesTypes> {
     Some(MonthNamesTypes {

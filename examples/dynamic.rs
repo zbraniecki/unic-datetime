@@ -1,6 +1,5 @@
-use unic_datetime::*;
 use unic_datetime::data::load::get_calendar_data;
-use std::borrow::Cow;
+use unic_datetime::*;
 
 fn main() {
     let dates = &[
@@ -33,7 +32,7 @@ fn main() {
     let data = get_calendar_data();
 
     for value in values {
-        let dtf = DateTimeFormat::new(value.0, value.1, value.2, Some(Cow::Owned(data.clone())));
+        let dtf = DateTimeFormat::new(value.0, value.1, value.2, &data);
         for date in dates {
             let s = dtf.format(date);
             println!("{}", s);

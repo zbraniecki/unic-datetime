@@ -22,3 +22,7 @@ required-features = ["binary"]
 [[bench]]
 name = "dates"
 harness = false
+
+[[example]]
+name = "dynamic"
+required-features = ["binary"]

@@ -37,7 +37,7 @@ fn date_time(c: &mut Criterion) {
     c.bench_function("date_time", |b| {
         b.iter(|| {
             for value in values {
-                let dtf = DateTimeFormat::new(value.0, value.1, value.2, None);
+                let dtf = DateTimeFormat::new_from_static(value.0, value.1, value.2);
                 for date in dates {
                     let _ = dtf.format(date);
                 }
@@ -50,7 +50,7 @@ fn date_time(c: &mut Criterion) {
         let data = unic_datetime::data::load::get_calendar_data();
         b.iter(|| {
             for value in values {
-                let dtf = DateTimeFormat::new(value.0, value.1, value.2, Some(std::borrow::Cow::Owned(data.clone())));
+                let dtf = DateTimeFormat::new(value.0, value.1, value.2, &data);
                 for date in dates {
                     let _ = dtf.format(date);
                 }
