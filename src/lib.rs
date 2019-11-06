@@ -4,6 +4,8 @@
 pub mod data;
 
 use data::layout::CalendarData;
+
+#[cfg(not(feature = "no-static"))]
 use data::pl::CALENDAR_DATA as PL_CALENDAR_DATA;
 use std::borrow::Borrow;
 use std::borrow::Cow;
@@ -83,6 +85,7 @@ pub struct DateTimeFormat<R> {
     calendar_data: R,
 }
 
+#[cfg(not(feature = "no-static"))]
 impl DateTimeFormat<&'static CalendarData> {
     pub fn new_from_static(
         locale: &str,

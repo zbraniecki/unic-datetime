@@ -7,6 +7,7 @@ where
     [PatternElement]: ToOwned,
 {
     pub months: MonthNames,
+    pub days: DayNames,
     pub date_formats: [Pattern; 4],
     pub time_formats: [Pattern; 4],
     pub date_time_formats: [Pattern; 4],
@@ -80,7 +81,23 @@ pub struct MonthNamesTypes {
 
 pub type MonthList = [Cow<'static, str>; 12];
 
-pub enum MonthNamesLength {
+#[derive(Default, Clone)]
+pub struct DayNames {
+    pub stand_alone: Option<DayNamesTypes>,
+    pub format: Option<DayNamesTypes>,
+}
+
+#[derive(Default, Clone)]
+pub struct DayNamesTypes {
+    pub abbreviated: Option<DayList>,
+    pub narrow: Option<DayList>,
+    pub short: Option<DayList>,
+    pub wide: Option<DayList>,
+}
+
+pub type DayList = [Cow<'static, str>; 7];
+
+pub enum NamesLength {
     ABBREVIATED,
     NARROW,
     SHORT,
@@ -99,6 +116,14 @@ fn format_number(
     }
 }
 
+//def day_of_week(year, month, day):
+
+fn get_day_of_week(year: usize, month: usize, day: usize) -> usize {
+    let t = &[0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4];
+    let year = if month < 3 { year - 1 } else { year };
+    return (year + year / 4 - year / 100 + year / 400 + t[month - 1] + day) % 7;
+}
+
 impl CalendarData
 where
     [PatternElement]: ToOwned,
@@ -113,20 +138,23 @@ where
             match elem {
                 PatternElement::Literal(s) => result.write_str(s.as_ref())?,
                 PatternElement::Token(t) => match t {
-                    DateTimeToken::WeekDayWide => result.write_str("Wtorek")?,
+                    DateTimeToken::WeekDayWide => {
+                        let day_name = &self.days.get_list(false, NamesLength::WIDE).unwrap()
+                            [get_day_of_week(input.year, input.month, input.day)];
+                        result.write_str(day_name.as_ref())?
+                    }
                     DateTimeToken::DayNumeric => format_number(&mut result, input.day, false)?,
                     DateTimeToken::Day2digit => format_number(&mut result, input.day, true)?,
                     DateTimeToken::Month2digit => format_number(&mut result, input.month, true)?,
                     DateTimeToken::MonthNameLong => {
-                        let month_name =
-                            &self.months.get_list(false, MonthNamesLength::WIDE).unwrap()
-                                [input.month - 1];
+                        let month_name = &self.months.get_list(false, NamesLength::WIDE).unwrap()
+                            [input.month - 1];
                         result.write_str(month_name.as_ref())?
                     }
                     DateTimeToken::MonthNameAbbreviated => {
                         let month_name = &self
                             .months
-                            .get_list(false, MonthNamesLength::ABBREVIATED)
+                            .get_list(false, NamesLength::ABBREVIATED)
                             .unwrap()[input.month - 1];
                         result.write_str(month_name.as_ref())?
                     }
@@ -146,7 +174,7 @@ where
 }
 
 impl MonthNames {
-    pub fn get_list(&self, stand_alone: bool, length: MonthNamesLength) -> Option<&MonthList> {
+    pub fn get_list(&self, stand_alone: bool, length: NamesLength) -> Option<&MonthList> {
         let list = if stand_alone {
             &self.stand_alone
         } else {
@@ -156,10 +184,29 @@ impl MonthNames {
         .unwrap();
 
         match length {
-            MonthNamesLength::ABBREVIATED => list.abbreviated.as_ref(),
-            MonthNamesLength::NARROW => list.narrow.as_ref(),
-            MonthNamesLength::SHORT => list.short.as_ref(),
-            MonthNamesLength::WIDE => list.wide.as_ref(),
+            NamesLength::ABBREVIATED => list.abbreviated.as_ref(),
+            NamesLength::NARROW => list.narrow.as_ref(),
+            NamesLength::SHORT => list.short.as_ref(),
+            NamesLength::WIDE => list.wide.as_ref(),
+        }
+    }
+}
+
+impl DayNames {
+    pub fn get_list(&self, stand_alone: bool, length: NamesLength) -> Option<&DayList> {
+        let list = if stand_alone {
+            &self.stand_alone
+        } else {
+            &self.format
+        }
+        .as_ref()
+        .unwrap();
+
+        match length {
+            NamesLength::ABBREVIATED => list.abbreviated.as_ref(),
+            NamesLength::NARROW => list.narrow.as_ref(),
+            NamesLength::SHORT => list.short.as_ref(),
+            NamesLength::WIDE => list.wide.as_ref(),
         }
     }
 }

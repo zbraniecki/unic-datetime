@@ -1,8 +1,36 @@
-use crate::data::layout::{CalendarData, MonthList, MonthNames, MonthNamesTypes, Pattern};
+use crate::data::layout::{
+    CalendarData, DayList, DayNames, DayNamesTypes, MonthList, MonthNames, MonthNamesTypes, Pattern,
+};
 use crate::data::patterns::parse_pattern;
 use serde_json::Value;
 use std::borrow::Cow;
 use std::fs;
+
+fn get_day_list(v: &Value) -> Option<DayList> {
+    if let Some(values) = v.as_object() {
+        let array: [Cow<'static, str>; 7] = [
+            Cow::Owned(values.get("sun").unwrap().as_str().unwrap().to_string()),
+            Cow::Owned(values.get("mon").unwrap().as_str().unwrap().to_string()),
+            Cow::Owned(values.get("tue").unwrap().as_str().unwrap().to_string()),
+            Cow::Owned(values.get("wed").unwrap().as_str().unwrap().to_string()),
+            Cow::Owned(values.get("thu").unwrap().as_str().unwrap().to_string()),
+            Cow::Owned(values.get("fri").unwrap().as_str().unwrap().to_string()),
+            Cow::Owned(values.get("sat").unwrap().as_str().unwrap().to_string()),
+        ];
+        Some(array)
+    } else {
+        None
+    }
+}
+
+fn get_days_data(v: &Value) -> Option<DayNamesTypes> {
+    Some(DayNamesTypes {
+        abbreviated: get_day_list(&v["abbreviated"]),
+        narrow: get_day_list(&v["narrow"]),
+        short: get_day_list(&v["short"]),
+        wide: get_day_list(&v["wide"]),
+    })
+}
 
 fn get_month_list(v: &Value) -> Option<MonthList> {
     if let Some(values) = v.as_object() {
@@ -45,6 +73,7 @@ fn get_months_data(v: &Value) -> Option<MonthNamesTypes> {
         wide: get_month_list(&v["wide"]),
     })
 }
+
 fn get_format_patterns(v: &Value) -> [Pattern; 4] {
     let values = v.as_object().unwrap();
     [
@@ -64,6 +93,10 @@ pub fn get_calendar_data() -> CalendarData {
         months: MonthNames {
             stand_alone: get_months_data(&values["months"]["stand-alone"]),
             format: get_months_data(&values["months"]["format"]),
+        },
+        days: DayNames {
+            stand_alone: get_days_data(&values["days"]["stand-alone"]),
+            format: get_days_data(&values["days"]["format"]),
         },
         date_formats: get_format_patterns(&values["dateFormats"]),
         time_formats: get_format_patterns(&values["timeFormats"]),
