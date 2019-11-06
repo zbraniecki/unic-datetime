@@ -47,7 +47,7 @@ pub enum DateStyle {
 }
 
 impl DateStyle {
-    pub fn idx(&self) -> usize {
+    pub fn idx(self) -> usize {
         match self {
             Self::FULL => 0,
             Self::LONG => 1,
@@ -66,7 +66,7 @@ pub enum TimeStyle {
 }
 
 impl TimeStyle {
-    pub fn idx(&self) -> usize {
+    pub fn idx(self) -> usize {
         match self {
             Self::FULL => 0,
             Self::LONG => 1,
@@ -77,7 +77,7 @@ impl TimeStyle {
 }
 
 pub struct DateTimeFormat {
-    pattern: Cow<'static, data::layout::Pattern<&'static str>>,
+    pattern: data::layout::Pattern<&'static str>,
     calendar_data: &'static data::layout::CalendarData<&'static str>,
 }
 
@@ -95,7 +95,7 @@ impl DateTimeFormat {
                     s == &data::layout::PatternElement::Token(data::layout::DateTimeToken::Sub1)
                 }) {
                     pattern.splice(
-                        idx..(idx + 1),
+                        idx..=idx,
                         PL_CALENDAR_DATA.date_formats[date_style.idx()]
                             .iter()
                             .cloned(),
@@ -105,16 +105,16 @@ impl DateTimeFormat {
                     s == &data::layout::PatternElement::Token(data::layout::DateTimeToken::Sub0)
                 }) {
                     pattern.splice(
-                        idx..(idx + 1),
+                        idx..=idx,
                         PL_CALENDAR_DATA.time_formats[time_style.idx()]
                             .iter()
                             .cloned(),
                     );
                 }
-                Cow::from(pattern)
+                Cow::Owned(pattern)
             }
-            (Some(date_style), None) => Cow::from(PL_CALENDAR_DATA.date_formats[date_style.idx()]),
-            (None, Some(time_style)) => Cow::from(PL_CALENDAR_DATA.time_formats[time_style.idx()]),
+            (Some(date_style), None) => PL_CALENDAR_DATA.date_formats[date_style.idx()].clone(),
+            (None, Some(time_style)) => PL_CALENDAR_DATA.time_formats[time_style.idx()].clone(),
             (None, None) => panic!(),
         };
         Self {

@@ -1,22 +1,25 @@
+use std::borrow::{Cow, ToOwned};
 use std::fmt::Write;
 
-#[derive(Default)]
-pub struct CalendarData<S: 'static + AsRef<str>> {
+pub struct CalendarData<S: 'static + AsRef<str>>
+where
+    [PatternElement<S>]: ToOwned,
+{
     pub months: MonthNames<S>,
-    pub date_formats: [&'static Pattern<S>; 4],
-    pub time_formats: [&'static Pattern<S>; 4],
-    pub date_time_formats: [&'static Pattern<S>; 4],
+    pub date_formats: [Pattern<S>; 4],
+    pub time_formats: [Pattern<S>; 4],
+    pub date_time_formats: [Pattern<S>; 4],
 }
 
-pub type Pattern<S> = [PatternElement<S>];
+pub type Pattern<S> = Cow<'static, [PatternElement<S>]>;
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub enum PatternElement<S> {
     Literal(S),
     Token(DateTimeToken),
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub enum DateTimeToken {
     WeekDayWide,          // EEEE
     DayNumeric,           // d
@@ -25,6 +28,7 @@ pub enum DateTimeToken {
     MonthNameAbbreviated, // MMM
     Month2digit,          // MM
     YearNumeric,          // y
+    Year2digit,           // yy
 
     Hour2digit,
     Minute2digit,
@@ -35,6 +39,28 @@ pub enum DateTimeToken {
 
     Sub0, // {0}
     Sub1, // {1}
+}
+
+impl DateTimeToken {
+    pub fn get_name(&self) -> &'static str {
+        match self {
+            Self::WeekDayWide => "WeekDayWide",
+            Self::DayNumeric => "DayNumeric",
+            Self::Day2digit => "Day2digit",
+            Self::MonthNameLong => "MonthNameLong",
+            Self::MonthNameAbbreviated => "MonthNameAbbreviated",
+            Self::Month2digit => "Month2digit",
+            Self::YearNumeric => "YearNumeric",
+            Self::Year2digit => "Year2digit",
+            Self::Hour2digit => "Hour2digit",
+            Self::Minute2digit => "Minute2digit",
+            Self::Second2digit => "Second2digit",
+            Self::ZoneLong => "ZoneLong",
+            Self::ZoneShort => "ZoneShort",
+            Self::Sub0 => "Sub0",
+            Self::Sub1 => "Sub1",
+        }
+    }
 }
 
 #[derive(Default)]
@@ -75,11 +101,12 @@ fn format_number(
 impl<S> CalendarData<S>
 where
     S: std::convert::AsRef<str>,
+    [PatternElement<S>]: ToOwned,
 {
     pub fn format_pattern(
         &self,
         mut result: &mut impl Write,
-        pattern: &Pattern<S>,
+        pattern: &[PatternElement<S>],
         input: &crate::DateTime,
     ) -> Result<(), std::fmt::Error> {
         for elem in pattern {

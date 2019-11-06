@@ -1,4 +1,5 @@
 use super::layout::*;
+use std::borrow::Cow;
 
 pub const CALENDAR_DATA: CalendarData<&'static str> = CalendarData {
     months: MonthNames {
@@ -46,7 +47,7 @@ pub const CALENDAR_DATA: CalendarData<&'static str> = CalendarData {
         }),
     },
     date_formats: [
-        &[
+        Cow::Borrowed(&[
             PatternElement::Token(DateTimeToken::WeekDayWide),
             PatternElement::Literal(", "),
             PatternElement::Token(DateTimeToken::DayNumeric),
@@ -54,31 +55,31 @@ pub const CALENDAR_DATA: CalendarData<&'static str> = CalendarData {
             PatternElement::Token(DateTimeToken::MonthNameLong),
             PatternElement::Literal(" "),
             PatternElement::Token(DateTimeToken::YearNumeric),
-        ],
-        &[
+        ]),
+        Cow::Borrowed(&[
             PatternElement::Token(DateTimeToken::DayNumeric),
             PatternElement::Literal(" "),
             PatternElement::Token(DateTimeToken::MonthNameLong),
             PatternElement::Literal(" "),
             PatternElement::Token(DateTimeToken::YearNumeric),
-        ],
-        &[
+        ]),
+        Cow::Borrowed(&[
             PatternElement::Token(DateTimeToken::DayNumeric),
             PatternElement::Literal(" "),
             PatternElement::Token(DateTimeToken::MonthNameAbbreviated),
             PatternElement::Literal(" "),
             PatternElement::Token(DateTimeToken::YearNumeric),
-        ],
-        &[
+        ]),
+        Cow::Borrowed(&[
             PatternElement::Token(DateTimeToken::Day2digit),
             PatternElement::Literal("."),
             PatternElement::Token(DateTimeToken::Month2digit),
             PatternElement::Literal("."),
             PatternElement::Token(DateTimeToken::YearNumeric),
-        ],
+        ]),
     ],
     time_formats: [
-        &[
+        Cow::Borrowed(&[
             PatternElement::Token(DateTimeToken::Hour2digit),
             PatternElement::Literal(":"),
             PatternElement::Token(DateTimeToken::Minute2digit),
@@ -86,8 +87,8 @@ pub const CALENDAR_DATA: CalendarData<&'static str> = CalendarData {
             PatternElement::Token(DateTimeToken::Second2digit),
             PatternElement::Literal(" "),
             PatternElement::Token(DateTimeToken::ZoneLong),
-        ],
-        &[
+        ]),
+        Cow::Borrowed(&[
             PatternElement::Token(DateTimeToken::Hour2digit),
             PatternElement::Literal(":"),
             PatternElement::Token(DateTimeToken::Minute2digit),
@@ -95,40 +96,40 @@ pub const CALENDAR_DATA: CalendarData<&'static str> = CalendarData {
             PatternElement::Token(DateTimeToken::Second2digit),
             PatternElement::Literal(" "),
             PatternElement::Token(DateTimeToken::ZoneShort),
-        ],
-        &[
+        ]),
+        Cow::Borrowed(&[
             PatternElement::Token(DateTimeToken::Hour2digit),
             PatternElement::Literal(":"),
             PatternElement::Token(DateTimeToken::Minute2digit),
             PatternElement::Literal(":"),
             PatternElement::Token(DateTimeToken::Second2digit),
-        ],
-        &[
+        ]),
+        Cow::Borrowed(&[
             PatternElement::Token(DateTimeToken::Hour2digit),
             PatternElement::Literal(":"),
             PatternElement::Token(DateTimeToken::Minute2digit),
-        ],
+        ]),
     ],
     date_time_formats: [
-        &[
+        Cow::Borrowed(&[
             PatternElement::Token(DateTimeToken::Sub1),
             PatternElement::Literal(" "),
             PatternElement::Token(DateTimeToken::Sub0),
-        ],
-        &[
+        ]),
+        Cow::Borrowed(&[
             PatternElement::Token(DateTimeToken::Sub1),
             PatternElement::Literal(" "),
             PatternElement::Token(DateTimeToken::Sub0),
-        ],
-        &[
+        ]),
+        Cow::Borrowed(&[
             PatternElement::Token(DateTimeToken::Sub1),
             PatternElement::Literal(", "),
             PatternElement::Token(DateTimeToken::Sub0),
-        ],
-        &[
+        ]),
+        Cow::Borrowed(&[
             PatternElement::Token(DateTimeToken::Sub1),
             PatternElement::Literal(", "),
             PatternElement::Token(DateTimeToken::Sub0),
-        ],
+        ]),
     ],
 };
