@@ -1,21 +1,22 @@
 use std::borrow::{Cow, ToOwned};
 use std::fmt::Write;
 
-pub struct CalendarData<S: 'static + AsRef<str>>
+#[derive(Clone)]
+pub struct CalendarData
 where
-    [PatternElement<S>]: ToOwned,
+    [PatternElement]: ToOwned,
 {
-    pub months: MonthNames<S>,
-    pub date_formats: [Pattern<S>; 4],
-    pub time_formats: [Pattern<S>; 4],
-    pub date_time_formats: [Pattern<S>; 4],
+    pub months: MonthNames,
+    pub date_formats: [Pattern; 4],
+    pub time_formats: [Pattern; 4],
+    pub date_time_formats: [Pattern; 4],
 }
 
-pub type Pattern<S> = Cow<'static, [PatternElement<S>]>;
+pub type Pattern = Cow<'static, [PatternElement]>;
 
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub enum PatternElement<S> {
-    Literal(S),
+pub enum PatternElement {
+    Literal(Cow<'static, str>),
     Token(DateTimeToken),
 }
 
@@ -63,21 +64,21 @@ impl DateTimeToken {
     }
 }
 
-#[derive(Default)]
-pub struct MonthNames<S> {
-    pub stand_alone: Option<MonthNamesTypes<S>>,
-    pub format: Option<MonthNamesTypes<S>>,
+#[derive(Default, Clone)]
+pub struct MonthNames {
+    pub stand_alone: Option<MonthNamesTypes>,
+    pub format: Option<MonthNamesTypes>,
 }
 
-#[derive(Default)]
-pub struct MonthNamesTypes<S> {
-    pub abbreviated: Option<MonthList<S>>,
-    pub narrow: Option<MonthList<S>>,
-    pub short: Option<MonthList<S>>,
-    pub wide: Option<MonthList<S>>,
+#[derive(Default, Clone)]
+pub struct MonthNamesTypes {
+    pub abbreviated: Option<MonthList>,
+    pub narrow: Option<MonthList>,
+    pub short: Option<MonthList>,
+    pub wide: Option<MonthList>,
 }
 
-pub type MonthList<S> = [S; 12];
+pub type MonthList = [Cow<'static, str>; 12];
 
 pub enum MonthNamesLength {
     ABBREVIATED,
@@ -98,15 +99,14 @@ fn format_number(
     }
 }
 
-impl<S> CalendarData<S>
+impl CalendarData
 where
-    S: std::convert::AsRef<str>,
-    [PatternElement<S>]: ToOwned,
+    [PatternElement]: ToOwned,
 {
     pub fn format_pattern(
         &self,
         mut result: &mut impl Write,
-        pattern: &[PatternElement<S>],
+        pattern: &[PatternElement],
         input: &crate::DateTime,
     ) -> Result<(), std::fmt::Error> {
         for elem in pattern {
@@ -145,11 +145,8 @@ where
     }
 }
 
-impl<S> MonthNames<S>
-where
-    S: std::convert::AsRef<str>,
-{
-    pub fn get_list(&self, stand_alone: bool, length: MonthNamesLength) -> Option<&MonthList<S>> {
+impl MonthNames {
+    pub fn get_list(&self, stand_alone: bool, length: MonthNamesLength) -> Option<&MonthList> {
         let list = if stand_alone {
             &self.stand_alone
         } else {

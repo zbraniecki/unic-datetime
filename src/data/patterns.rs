@@ -10,19 +10,19 @@ fn collect_literal(
     literal_start: &mut usize,
     idx: usize,
     input: &[u8],
-    result: &mut Vec<PatternElement<String>>,
+    result: &mut Vec<PatternElement>,
 ) {
     if literal_start == &idx {
         return;
     }
     let slice = std::str::from_utf8(&input.as_ref()[*literal_start..idx]).unwrap();
-    result.push(PatternElement::Literal(slice.to_string()));
+    result.push(PatternElement::Literal(Cow::Owned(slice.to_owned())));
     *literal_start = idx;
 }
 
 pub fn parse_pattern<S: AsRef<[u8]>>(
     input: S,
-) -> Result<Cow<'static, [PatternElement<String>]>, ParserError> {
+) -> Result<Cow<'static, [PatternElement]>, ParserError> {
     let mut result = vec![];
 
     let mut iter = input.as_ref().iter().enumerate().peekable();
@@ -35,7 +35,7 @@ pub fn parse_pattern<S: AsRef<[u8]>>(
                 collect_literal(&mut literal_start, i, input.as_ref(), &mut result);
                 let next = iter.next();
                 if let Some((_, b'\'')) = next {
-                    result.push(PatternElement::Literal("'".to_string()));
+                    result.push(PatternElement::Literal(Cow::Owned("'".to_string())));
                 } else if let Some((start, _)) = next {
                     while let Some((i, ch)) = iter.next() {
                         if ch == &b'\'' {
@@ -43,7 +43,9 @@ pub fn parse_pattern<S: AsRef<[u8]>>(
                                 iter.next();
                             } else {
                                 let slice = std::str::from_utf8(&input.as_ref()[start..i]).unwrap();
-                                result.push(PatternElement::Literal(slice.replace("''", "'")));
+                                result.push(PatternElement::Literal(Cow::Owned(
+                                    slice.replace("''", "'"),
+                                )));
                                 literal_start = i + 1;
                                 break;
                             }

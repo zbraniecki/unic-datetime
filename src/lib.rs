@@ -3,6 +3,7 @@
 // Unfortunately, we use this for data generation binary.
 pub mod data;
 
+use data::layout::CalendarData;
 use data::pl::CALENDAR_DATA as PL_CALENDAR_DATA;
 use std::borrow::Cow;
 
@@ -77,8 +78,8 @@ impl TimeStyle {
 }
 
 pub struct DateTimeFormat {
-    pattern: data::layout::Pattern<&'static str>,
-    calendar_data: &'static data::layout::CalendarData<&'static str>,
+    pattern: data::layout::Pattern,
+    calendar_data: Cow<'static, data::layout::CalendarData>,
 }
 
 impl DateTimeFormat {
@@ -86,17 +87,19 @@ impl DateTimeFormat {
         _locale: &str,
         date_style: Option<DateStyle>,
         time_style: Option<TimeStyle>,
+        calendar_data: Option<Cow<'static, CalendarData>>,
     ) -> Self {
+        let calendar_data = calendar_data.unwrap_or(Cow::Borrowed(&PL_CALENDAR_DATA));
         let pattern = match (date_style, time_style) {
             (Some(date_style), Some(time_style)) => {
-                let mut pattern = PL_CALENDAR_DATA.date_time_formats[date_style.idx()].to_vec();
+                let mut pattern = calendar_data.date_time_formats[date_style.idx()].to_vec();
 
                 if let Some(idx) = pattern.iter().position(|s| {
                     s == &data::layout::PatternElement::Token(data::layout::DateTimeToken::Sub1)
                 }) {
                     pattern.splice(
                         idx..=idx,
-                        PL_CALENDAR_DATA.date_formats[date_style.idx()]
+                        calendar_data.date_formats[date_style.idx()]
                             .iter()
                             .cloned(),
                     );
@@ -106,20 +109,20 @@ impl DateTimeFormat {
                 }) {
                     pattern.splice(
                         idx..=idx,
-                        PL_CALENDAR_DATA.time_formats[time_style.idx()]
+                        calendar_data.time_formats[time_style.idx()]
                             .iter()
                             .cloned(),
                     );
                 }
                 Cow::Owned(pattern)
             }
-            (Some(date_style), None) => PL_CALENDAR_DATA.date_formats[date_style.idx()].clone(),
-            (None, Some(time_style)) => PL_CALENDAR_DATA.time_formats[time_style.idx()].clone(),
+            (Some(date_style), None) => calendar_data.date_formats[date_style.idx()].clone(),
+            (None, Some(time_style)) => calendar_data.time_formats[time_style.idx()].clone(),
             (None, None) => panic!(),
         };
         Self {
             pattern,
-            calendar_data: &PL_CALENDAR_DATA,
+            calendar_data: calendar_data,
         }
     }
 
@@ -138,13 +141,13 @@ mod tests {
     #[test]
     fn it_works() {
         let dt = DateTime::new(2019, 10, 29, 10, 23, 5);
-        let dtf = DateTimeFormat::new("pl", Some(DateStyle::LONG), None);
+        let dtf = DateTimeFormat::new("pl", Some(DateStyle::LONG), None, None);
         assert_eq!(dtf.format(&dt), "29 października 2019");
 
-        let dtf = DateTimeFormat::new("pl", Some(DateStyle::SHORT), None);
+        let dtf = DateTimeFormat::new("pl", Some(DateStyle::SHORT), None, None);
         assert_eq!(dtf.format(&dt), "29.10.2019");
 
-        let dtf = DateTimeFormat::new("pl", Some(DateStyle::MEDIUM), Some(TimeStyle::MEDIUM));
+        let dtf = DateTimeFormat::new("pl", Some(DateStyle::MEDIUM), Some(TimeStyle::MEDIUM), None);
         assert_eq!(dtf.format(&dt), "29 paź 2019, 10:23:05");
     }
 }

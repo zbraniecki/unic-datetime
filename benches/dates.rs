@@ -37,7 +37,20 @@ fn date_time(c: &mut Criterion) {
     c.bench_function("date_time", |b| {
         b.iter(|| {
             for value in values {
-                let dtf = DateTimeFormat::new(value.0, value.1, value.2);
+                let dtf = DateTimeFormat::new(value.0, value.1, value.2, None);
+                for date in dates {
+                    let _ = dtf.format(date);
+                }
+            }
+        })
+    });
+
+    #[cfg(feature = "serde")]
+    c.bench_function("date_time_dynamic", |b| {
+        let data = unic_datetime::data::load::get_calendar_data();
+        b.iter(|| {
+            for value in values {
+                let dtf = DateTimeFormat::new(value.0, value.1, value.2, Some(std::borrow::Cow::Owned(data.clone())));
                 for date in dates {
                     let _ = dtf.format(date);
                 }

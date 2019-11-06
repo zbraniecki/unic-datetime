@@ -1,88 +1,17 @@
-use serde_json::Value;
 use std::fmt::Write;
-use std::fs;
 use unic_datetime::data::layout::{
-    CalendarData, DateTimeToken, MonthList, MonthNames, MonthNamesTypes, Pattern, PatternElement,
+    CalendarData, MonthList, MonthNamesTypes, Pattern, PatternElement,
 };
-use unic_datetime::data::patterns::parse_pattern;
+use unic_datetime::data::load::get_calendar_data;
 
-fn get_month_list(v: &Value) -> Option<MonthList<String>> {
-    if let Some(values) = v.as_object() {
-        let mut list = Vec::new();
-        for i in 1..13 {
-            let name = values
-                .get(&i.to_string())
-                .unwrap()
-                .as_str()
-                .unwrap()
-                .to_string();
-            list.push(name);
-        }
-        // XXX: I'm so sorry, Mom.
-        let array: [String; 12] = [
-            list[0].clone(),
-            list[1].clone(),
-            list[2].clone(),
-            list[3].clone(),
-            list[4].clone(),
-            list[5].clone(),
-            list[6].clone(),
-            list[7].clone(),
-            list[8].clone(),
-            list[9].clone(),
-            list[10].clone(),
-            list[11].clone(),
-        ];
-        Some(array)
-    } else {
-        None
-    }
-}
-
-fn get_months_data(v: &Value) -> Option<MonthNamesTypes<String>> {
-    Some(MonthNamesTypes {
-        abbreviated: get_month_list(&v["abbreviated"]),
-        narrow: get_month_list(&v["narrow"]),
-        short: get_month_list(&v["short"]),
-        wide: get_month_list(&v["wide"]),
-    })
-}
-
-fn get_format_patterns(v: &Value) -> [Pattern<String>; 4] {
-    let values = v.as_object().unwrap();
-    [
-        parse_pattern(values.get("full").unwrap().as_str().unwrap()).unwrap(),
-        parse_pattern(values.get("long").unwrap().as_str().unwrap()).unwrap(),
-        parse_pattern(values.get("medium").unwrap().as_str().unwrap()).unwrap(),
-        parse_pattern(values.get("short").unwrap().as_str().unwrap()).unwrap(),
-    ]
-}
-
-fn get_calendar_data() -> CalendarData<String> {
-    let path = "./data/cldr-dates-modern/main/pl/ca-gregorian.json";
-    let contents = fs::read_to_string(path).expect("Something went wrong reading the file");
-    let v: Value = serde_json::from_str(&contents).unwrap();
-    let values = &v["main"]["pl"]["dates"]["calendars"]["gregorian"];
-
-    CalendarData {
-        months: MonthNames {
-            stand_alone: get_months_data(&values["months"]["stand-alone"]),
-            format: get_months_data(&values["months"]["format"]),
-        },
-        date_formats: get_format_patterns(&values["dateFormats"]),
-        time_formats: get_format_patterns(&values["timeFormats"]),
-        date_time_formats: get_format_patterns(&values["dateTimeFormats"]),
-    }
-}
-
-fn serialize_month_list(list: &Option<MonthList<String>>) -> Result<String, std::fmt::Error> {
+fn serialize_month_list(list: &Option<MonthList>) -> Result<String, std::fmt::Error> {
     let mut result = String::new();
     if let Some(list) = list {
         writeln!(
             result,
             "Some([{}])",
             list.iter()
-                .map(|s| format!(r#""{}""#, s))
+                .map(|s| format!(r#"Cow::Borrowed("{}")"#, s))
                 .collect::<Vec<_>>()
                 .join(", ")
         )?;
@@ -93,7 +22,7 @@ fn serialize_month_list(list: &Option<MonthList<String>>) -> Result<String, std:
 }
 
 fn serialize_month_names_types(
-    months: &Option<MonthNamesTypes<String>>,
+    months: &Option<MonthNamesTypes>,
 ) -> Result<String, std::fmt::Error> {
     let mut result = String::new();
     if let Some(months) = months {
@@ -125,7 +54,7 @@ fn serialize_month_names_types(
     Ok(result)
 }
 
-fn serialize_dt_formats(list: &[Pattern<String>]) -> Result<String, std::fmt::Error> {
+fn serialize_dt_formats(list: &[Pattern]) -> Result<String, std::fmt::Error> {
     let mut result = String::new();
     writeln!(result, "[")?;
     for pattern in list {
@@ -133,7 +62,11 @@ fn serialize_dt_formats(list: &[Pattern<String>]) -> Result<String, std::fmt::Er
         for elem in pattern.as_ref().iter() {
             match elem {
                 PatternElement::Literal(s) => {
-                    writeln!(result, r#"            PatternElement::Literal("{}"),"#, s)?;
+                    writeln!(
+                        result,
+                        r#"            PatternElement::Literal(Cow::Borrowed("{}")),"#,
+                        s
+                    )?;
                 }
                 PatternElement::Token(t) => {
                     writeln!(
@@ -150,7 +83,7 @@ fn serialize_dt_formats(list: &[Pattern<String>]) -> Result<String, std::fmt::Er
     Ok(result)
 }
 
-fn serialize_calendar_data(data: &CalendarData<String>) -> Result<String, std::fmt::Error> {
+fn serialize_calendar_data(data: &CalendarData) -> Result<String, std::fmt::Error> {
     let mut result = String::new();
 
     writeln!(result, "use super::layout::*;")?;
@@ -158,7 +91,7 @@ fn serialize_calendar_data(data: &CalendarData<String>) -> Result<String, std::f
 
     writeln!(
         result,
-        "pub const CALENDAR_DATA: CalendarData<&'static str> = CalendarData {{"
+        "pub const CALENDAR_DATA: CalendarData = CalendarData {{"
     )?;
     writeln!(result, "    months: MonthNames {{")?;
     writeln!(
