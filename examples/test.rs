@@ -1,5 +1,5 @@
 use unic_datetime::*;
-
+use std::time::Instant;
 fn main() {
     let dates = &[
         DateTime::new(2001, 9, 8, 18, 46, 40),
@@ -18,6 +18,8 @@ fn main() {
         ("pl", Some(DateStyle::LONG), None),
         ("pl", Some(DateStyle::MEDIUM), None),
         ("pl", Some(DateStyle::SHORT), None),
+        //("pl", None, Some(TimeStyle::FULL)),
+        //("pl", None, Some(TimeStyle::LONG)),
         ("pl", None, Some(TimeStyle::MEDIUM)),
         ("pl", None, Some(TimeStyle::SHORT)),
         ("pl", Some(DateStyle::FULL), Some(TimeStyle::MEDIUM)),
@@ -25,11 +27,15 @@ fn main() {
         ("pl", Some(DateStyle::MEDIUM), Some(TimeStyle::MEDIUM)),
         ("pl", Some(DateStyle::SHORT), Some(TimeStyle::SHORT)),
     ];
+
+    let now = Instant::now();
     for value in values {
         let dtf = DateTimeFormat::new_from_static(value.0, value.1, value.2);
         for date in dates {
             let s = dtf.format(date);
-            println!("{}", s);
+            //println!("{}", s);
         }
     }
+    let elapsed = now.elapsed();
+    println!("us: {:#?}", elapsed.as_micros());
 }

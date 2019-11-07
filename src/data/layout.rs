@@ -159,6 +159,7 @@ where
                         result.write_str(month_name.as_ref())?
                     }
                     DateTimeToken::YearNumeric => format_number(&mut result, input.year, false)?,
+                    DateTimeToken::Year2digit => format_number(&mut result, input.year, true)?,
                     DateTimeToken::Hour2digit => format_number(&mut result, input.hour, true)?,
                     DateTimeToken::Minute2digit => format_number(&mut result, input.minute, true)?,
                     DateTimeToken::Second2digit => format_number(&mut result, input.second, true)?,

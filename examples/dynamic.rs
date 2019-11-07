@@ -1,5 +1,6 @@
 use unic_datetime::data::load::get_calendar_data;
 use unic_datetime::*;
+use std::time::Instant;
 
 fn main() {
     let dates = &[
@@ -29,13 +30,17 @@ fn main() {
         ("pl", Some(DateStyle::SHORT), Some(TimeStyle::SHORT)),
     ];
 
-    let data = get_calendar_data();
+    let now = Instant::now();
+
+    let data = get_calendar_data("pl");
 
     for value in values {
         let dtf = DateTimeFormat::new(value.0, value.1, value.2, &data);
         for date in dates {
             let s = dtf.format(date);
-            println!("{}", s);
+            //println!("{}", s);
         }
     }
+    let elapsed = now.elapsed();
+    println!("us: {:#?}", elapsed.as_micros());
 }
