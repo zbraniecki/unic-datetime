@@ -65,13 +65,13 @@ impl DateTimeToken {
     }
 }
 
-#[derive(Default, Clone)]
+#[derive(Clone)]
 pub struct MonthNames {
     pub stand_alone: Option<MonthNamesTypes>,
     pub format: Option<MonthNamesTypes>,
 }
 
-#[derive(Default, Clone)]
+#[derive(Clone)]
 pub struct MonthNamesTypes {
     pub abbreviated: Option<MonthList>,
     pub narrow: Option<MonthList>,
@@ -81,13 +81,13 @@ pub struct MonthNamesTypes {
 
 pub type MonthList = [Cow<'static, str>; 12];
 
-#[derive(Default, Clone)]
+#[derive(Clone)]
 pub struct DayNames {
     pub stand_alone: Option<DayNamesTypes>,
     pub format: Option<DayNamesTypes>,
 }
 
-#[derive(Default, Clone)]
+#[derive(Clone)]
 pub struct DayNamesTypes {
     pub abbreviated: Option<DayList>,
     pub narrow: Option<DayList>,

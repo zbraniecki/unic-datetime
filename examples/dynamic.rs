@@ -1,6 +1,6 @@
-use unic_datetime::data::load::get_calendar_data;
-use unic_datetime::*;
 use std::time::Instant;
+use unic_datetime::data::load2::get_calendar_data;
+use unic_datetime::*;
 
 fn main() {
     let dates = &[
@@ -20,12 +20,12 @@ fn main() {
         ("pl", Some(DateStyle::LONG), None),
         ("pl", Some(DateStyle::MEDIUM), None),
         ("pl", Some(DateStyle::SHORT), None),
-        ("pl", None, Some(TimeStyle::FULL)),
-        ("pl", None, Some(TimeStyle::LONG)),
+        //("pl", None, Some(TimeStyle::FULL)),
+        //("pl", None, Some(TimeStyle::LONG)),
         ("pl", None, Some(TimeStyle::MEDIUM)),
         ("pl", None, Some(TimeStyle::SHORT)),
-        ("pl", Some(DateStyle::FULL), Some(TimeStyle::FULL)),
-        ("pl", Some(DateStyle::LONG), Some(TimeStyle::LONG)),
+        ("pl", Some(DateStyle::FULL), Some(TimeStyle::MEDIUM)),
+        ("pl", Some(DateStyle::LONG), Some(TimeStyle::MEDIUM)),
         ("pl", Some(DateStyle::MEDIUM), Some(TimeStyle::MEDIUM)),
         ("pl", Some(DateStyle::SHORT), Some(TimeStyle::SHORT)),
     ];
@@ -37,7 +37,7 @@ fn main() {
     for value in values {
         let dtf = DateTimeFormat::new(value.0, value.1, value.2, &data);
         for date in dates {
-            let s = dtf.format(date);
+            let _ = dtf.format(date);
             //println!("{}", s);
         }
     }
