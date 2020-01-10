@@ -32,7 +32,7 @@ fn main() {
 
     let now = Instant::now();
 
-    let data = get_calendar_data("pl");
+    let data = get_calendar_data("./res", "pl");
     // println!("{:#?}", data);
 
     for value in values {
