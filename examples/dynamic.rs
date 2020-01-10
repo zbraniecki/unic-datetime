@@ -1,5 +1,5 @@
 use std::time::Instant;
-use unic_datetime::data::load2::get_calendar_data;
+use unic_datetime::data::load3::get_calendar_data;
 use unic_datetime::*;
 
 fn main() {
