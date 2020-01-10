@@ -32,7 +32,7 @@ fn main() {
 
     let now = Instant::now();
 
-    let data = get_calendar_data("pl");
+    let data = get_calendar_data("./data/cldr-dates-modern", "pl");
 
     for value in values {
         let dtf = DateTimeFormat::new(value.0, value.1, value.2, &data);
