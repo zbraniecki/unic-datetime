@@ -47,7 +47,7 @@ fn date_time(c: &mut Criterion) {
 
     #[cfg(feature = "serde")]
     c.bench_function("date_time_dynamic", |b| {
-        let data = unic_datetime::data::load::get_calendar_data();
+        let data = unic_datetime::data::load::get_calendar_data("pl");
         b.iter(|| {
             for value in values {
                 let dtf = DateTimeFormat::new(value.0, value.1, value.2, &data);

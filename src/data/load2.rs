@@ -328,10 +328,7 @@ pub struct Formats {
 }
 
 pub fn get_calendar_data(locale: &str) -> CalendarData {
-    let path = format!(
-        "./data/cldr-dates-modern/main/{}/ca-gregorian.json",
-        locale
-    );
+    let path = format!("./data/cldr-dates-modern/main/{}/ca-gregorian.json", locale);
     let contents = fs::read_to_string(path).expect("Something went wrong reading the file");
     let mut res: Resource = serde_json::from_str(&contents).unwrap();
 

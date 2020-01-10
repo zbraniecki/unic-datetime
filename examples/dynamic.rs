@@ -20,8 +20,8 @@ fn main() {
         ("pl", Some(DateStyle::LONG), None),
         ("pl", Some(DateStyle::MEDIUM), None),
         ("pl", Some(DateStyle::SHORT), None),
-        //("pl", None, Some(TimeStyle::FULL)),
-        //("pl", None, Some(TimeStyle::LONG)),
+        // ("pl", None, Some(TimeStyle::FULL)),
+        // ("pl", None, Some(TimeStyle::LONG)),
         ("pl", None, Some(TimeStyle::MEDIUM)),
         ("pl", None, Some(TimeStyle::SHORT)),
         ("pl", Some(DateStyle::FULL), Some(TimeStyle::MEDIUM)),
@@ -38,7 +38,7 @@ fn main() {
         let dtf = DateTimeFormat::new(value.0, value.1, value.2, &data);
         for date in dates {
             let _ = dtf.format(date);
-            //println!("{}", s);
+            // println!("{}", s);
         }
     }
     let elapsed = now.elapsed();

@@ -185,7 +185,7 @@ fn serialize_calendar_data(data: &CalendarData) -> Result<String, std::fmt::Erro
 }
 
 fn main() {
-    let data = get_calendar_data();
+    let data = get_calendar_data("pl");
 
     let result = serialize_calendar_data(&data).unwrap();
     println!("{}", result);

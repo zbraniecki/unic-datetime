@@ -8,16 +8,21 @@ exclude = ["data/*"]
 [dependencies]
 serde = { version = "1.0", features = ["derive"], optional = true }
 serde_json = { version = "1.0", optional = true }
+bincode = { version = "1.2.1", optional = true }
 
 [dev-dependencies]
 criterion = "0.3"
 
 [features]
-binary = ["serde", "serde_json"]
+binary = ["serde", "serde_json", "bincode"]
 no-static = []
 
 [[bin]]
 name = "generate_tables"
+required-features = ["binary"]
+
+[[bin]]
+name = "generate_res"
 required-features = ["binary"]
 
 [[bench]]
