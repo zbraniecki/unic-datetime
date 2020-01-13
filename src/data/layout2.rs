@@ -205,7 +205,7 @@ pub struct DayList<'l> {
 }
 
 impl<'l> DayList<'l> {
-    fn get(&self, idx: usize) -> &Cow<'l, str> {
+    pub fn get(&self, idx: usize) -> &Cow<'l, str> {
         match idx {
             0 => &self.sun,
             1 => &self.mon,
@@ -249,7 +249,7 @@ pub struct MonthList<'l> {
 }
 
 impl<'l> MonthList<'l> {
-    fn get(&self, idx: usize) -> &Cow<'l, str> {
+    pub fn get(&self, idx: usize) -> &Cow<'l, str> {
         match idx {
             0 => &self.m1,
             1 => &self.m2,
@@ -368,4 +368,26 @@ pub enum DateTimeToken {
 
     Sub0, // {0}
     Sub1, // {1}
+}
+
+impl DateTimeToken {
+    pub fn get_name(&self) -> &'static str {
+        match self {
+            Self::WeekDayWide => "WeekDayWide",
+            Self::DayNumeric => "DayNumeric",
+            Self::Day2digit => "Day2digit",
+            Self::MonthNameLong => "MonthNameLong",
+            Self::MonthNameAbbreviated => "MonthNameAbbreviated",
+            Self::Month2digit => "Month2digit",
+            Self::YearNumeric => "YearNumeric",
+            Self::Year2digit => "Year2digit",
+            Self::Hour2digit => "Hour2digit",
+            Self::Minute2digit => "Minute2digit",
+            Self::Second2digit => "Second2digit",
+            Self::ZoneLong => "ZoneLong",
+            Self::ZoneShort => "ZoneShort",
+            Self::Sub0 => "Sub0",
+            Self::Sub1 => "Sub1",
+        }
+    }
 }

@@ -34,7 +34,7 @@ fn main() {
         let dtf = DateTimeFormat::new_from_static(value.0, value.1, value.2);
         for date in dates {
             let s = dtf.format(date);
-            //println!("{}", s);
+            // println!("{}", s);
         }
     }
     let elapsed = now.elapsed();

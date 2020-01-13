@@ -7,7 +7,7 @@ use data::layout2;
 use data::layout2::Resource;
 
 #[cfg(not(feature = "no-static"))]
-use data::pl::CALENDAR_DATA as PL_CALENDAR_DATA;
+use data::pl::RESOURCE as PL_CALENDAR_DATA;
 use std::borrow::Borrow;
 use std::borrow::Cow;
 
@@ -86,16 +86,16 @@ pub struct DateTimeFormat<R> {
     calendar_data: R,
 }
 
-// #[cfg(not(feature = "no-static"))]
-// impl DateTimeFormat<&'static Resource> {
-//     pub fn new_from_static(
-//         locale: &str,
-//         date_style: Option<DateStyle>,
-//         time_style: Option<TimeStyle>,
-//     ) -> Self {
-//         Self::new(locale, date_style, time_style, &PL_CALENDAR_DATA)
-//     }
-// }
+#[cfg(not(feature = "no-static"))]
+impl DateTimeFormat<&'static Resource<'_>> {
+    pub fn new_from_static(
+        locale: &str,
+        date_style: Option<DateStyle>,
+        time_style: Option<TimeStyle>,
+    ) -> Self {
+        Self::new(locale, date_style, time_style, &PL_CALENDAR_DATA)
+    }
+}
 
 fn create_date_time_pattern<'l, R: Borrow<Resource<'l>>>(
     pattern: &layout2::DateTimePattern,
@@ -123,7 +123,6 @@ fn create_date_time_pattern<'l, R: Borrow<Resource<'l>>>(
         );
     }
     Cow::Owned(pattern)
-    // Cow::Owned(vec![].into())
 }
 
 impl<'l, R> DateTimeFormat<R> {

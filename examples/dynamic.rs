@@ -37,7 +37,7 @@ fn main() {
     for value in values {
         let dtf = DateTimeFormat::new(value.0, value.1, value.2, &data);
         for date in dates {
-            let _ = dtf.format(date);
+            let s = dtf.format(date);
             // println!("{}", s);
         }
     }
