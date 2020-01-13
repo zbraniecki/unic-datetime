@@ -1,4 +1,4 @@
-use super::layout2::*;
+use super::layout::*;
 use std::borrow::Cow;
 
 pub const RESOURCE: Resource<'static> = Resource {

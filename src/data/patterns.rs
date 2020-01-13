@@ -1,4 +1,4 @@
-use super::layout2::{DateTimeToken, PatternElement};
+use super::layout::{DateTimeToken, PatternElement};
 use std::borrow::Cow;
 
 #[derive(Debug)]

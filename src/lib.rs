@@ -3,8 +3,8 @@
 // Unfortunately, we use this for data generation binary.
 pub mod data;
 
-use data::layout2;
-use data::layout2::Resource;
+use data::layout;
+use data::layout::Resource;
 
 #[cfg(not(feature = "no-static"))]
 use data::pl::RESOURCE as PL_CALENDAR_DATA;
@@ -82,7 +82,7 @@ impl TimeStyle {
 }
 
 pub struct DateTimeFormat<R> {
-    pattern: data::layout2::DateTimePattern,
+    pattern: data::layout::DateTimePattern,
     calendar_data: R,
 }
 
@@ -98,16 +98,16 @@ impl DateTimeFormat<&'static Resource<'_>> {
 }
 
 fn create_date_time_pattern<'l, R: Borrow<Resource<'l>>>(
-    pattern: &layout2::DateTimePattern,
+    pattern: &layout::DateTimePattern,
     date_style: DateStyle,
     time_style: TimeStyle,
     resource: R,
-) -> Cow<'static, [layout2::PatternElement]> {
+) -> Cow<'static, [layout::PatternElement]> {
     let calendar_data = &resource.borrow().main.pl.dates.calendars.gregorian;
-    let mut pattern: Vec<data::layout2::PatternElement> = pattern.to_parsed().to_vec();
+    let mut pattern: Vec<data::layout::PatternElement> = pattern.to_parsed().to_vec();
 
     if let Some(idx) = pattern.iter().position(|s| {
-        s == &data::layout2::PatternElement::Token(data::layout2::DateTimeToken::Sub1)
+        s == &data::layout::PatternElement::Token(data::layout::DateTimeToken::Sub1)
     }) {
         pattern.splice(
             idx..=idx,
@@ -115,7 +115,7 @@ fn create_date_time_pattern<'l, R: Borrow<Resource<'l>>>(
         );
     }
     if let Some(idx) = pattern.iter().position(|s| {
-        s == &data::layout2::PatternElement::Token(data::layout2::DateTimeToken::Sub0)
+        s == &data::layout::PatternElement::Token(data::layout::DateTimeToken::Sub0)
     }) {
         pattern.splice(
             idx..=idx,
@@ -141,7 +141,7 @@ impl<'l, R> DateTimeFormat<R> {
                 let pattern = calendar_data.date_time_formats.get(date_style.idx());
                 let pattern =
                     create_date_time_pattern(pattern, date_style, time_style, data.borrow());
-                layout2::DateTimePattern::Parsed(pattern)
+                layout::DateTimePattern::Parsed(pattern)
             }
             (Some(date_style), None) => calendar_data.date_formats.get(date_style.idx()).clone(),
             (None, Some(time_style)) => calendar_data.time_formats.get(time_style.idx()).clone(),

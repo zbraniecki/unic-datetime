@@ -300,7 +300,7 @@ pub enum DateTimePattern {
 impl DateTimePattern {
     pub fn to_parsed(&self) -> Vec<PatternElement> {
         match *self {
-            DateTimePattern::Raw(ref s) => super::patterns2::parse_pattern(&s.as_ref()).unwrap(),
+            DateTimePattern::Raw(ref s) => super::patterns::parse_pattern(&s.as_ref()).unwrap(),
             DateTimePattern::Parsed(ref elements) => elements.to_vec(),
         }
     }

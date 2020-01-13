@@ -1,6 +1,6 @@
 use std::fmt::Write;
-use unic_datetime::data::layout2::*;
-use unic_datetime::data::load3::get_calendar_data;
+use unic_datetime::data::layout::*;
+use unic_datetime::data::load_json::get_calendar_data;
 
 fn serialize_day_list(list: &DayList) -> Result<String, std::fmt::Error> {
     let mut result = String::new();
@@ -142,7 +142,7 @@ fn serialize_dt_formats(formats: &Formats) -> Result<String, std::fmt::Error> {
 fn serialize_calendar_data(data: &Resource) -> Result<String, std::fmt::Error> {
     let mut result = String::new();
 
-    writeln!(result, "use super::layout2::*;")?;
+    writeln!(result, "use super::layout::*;")?;
     writeln!(result, "use std::borrow::Cow;\n")?;
 
     writeln!(
