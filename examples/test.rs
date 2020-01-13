@@ -1,5 +1,6 @@
 use std::time::Instant;
 use unic_datetime::*;
+
 fn main() {
     let dates = &[
         DateTime::new(2001, 9, 8, 18, 46, 40),

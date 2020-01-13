@@ -20,9 +20,7 @@ fn collect_literal(
     *literal_start = idx;
 }
 
-pub fn parse_pattern<'l, S: AsRef<[u8]>>(
-    input: S,
-) -> Result<Cow<'static, [PatternElement]>, ParserError> {
+pub fn parse_pattern<'l, S: AsRef<[u8]>>(input: S) -> Result<Vec<PatternElement>, ParserError> {
     let mut result = vec![];
 
     let mut iter = input.as_ref().iter().enumerate().peekable();
@@ -188,5 +186,5 @@ pub fn parse_pattern<'l, S: AsRef<[u8]>>(
             _ => {}
         }
     }
-    Ok(Cow::Owned(result))
+    Ok(result)
 }

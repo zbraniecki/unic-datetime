@@ -6,8 +6,8 @@ pub mod data;
 use data::layout2;
 use data::layout2::Resource;
 
-// #[cfg(not(feature = "no-static"))]
-// use data::pl::CALENDAR_DATA as PL_CALENDAR_DATA;
+#[cfg(not(feature = "no-static"))]
+use data::pl::CALENDAR_DATA as PL_CALENDAR_DATA;
 use std::borrow::Borrow;
 use std::borrow::Cow;
 
@@ -101,26 +101,29 @@ fn create_date_time_pattern<'l, R: Borrow<Resource<'l>>>(
     pattern: &layout2::DateTimePattern,
     date_style: DateStyle,
     time_style: TimeStyle,
-    data: R,
+    resource: R,
 ) -> Cow<'static, [layout2::PatternElement]> {
-    // if let Some(idx) = pattern.iter().position(|s| {
-    //     s == &data::layout::PatternElement::Token(data::layout::DateTimeToken::Sub1)
-    // }) {
-    //     pattern.splice(
-    //         idx..=idx,
-    //         calendar_data.date_formats[date_style.idx()].iter().cloned(),
-    //     );
-    // }
-    // if let Some(idx) = pattern.iter().position(|s| {
-    //     s == &data::layout::PatternElement::Token(data::layout::DateTimeToken::Sub0)
-    // }) {
-    //     pattern.splice(
-    //         idx..=idx,
-    //         calendar_data.time_formats[time_style.idx()].iter().cloned(),
-    //     );
-    // }
-    // Cow::Owned(pattern)
-    Cow::Owned(vec![].into())
+    let calendar_data = &resource.borrow().main.pl.dates.calendars.gregorian;
+    let mut pattern: Vec<data::layout2::PatternElement> = pattern.to_parsed().to_vec();
+
+    if let Some(idx) = pattern.iter().position(|s| {
+        s == &data::layout2::PatternElement::Token(data::layout2::DateTimeToken::Sub1)
+    }) {
+        pattern.splice(
+            idx..=idx,
+            calendar_data.date_formats.get(date_style.idx()).to_parsed(),
+        );
+    }
+    if let Some(idx) = pattern.iter().position(|s| {
+        s == &data::layout2::PatternElement::Token(data::layout2::DateTimeToken::Sub0)
+    }) {
+        pattern.splice(
+            idx..=idx,
+            calendar_data.time_formats.get(time_style.idx()).to_parsed(),
+        );
+    }
+    Cow::Owned(pattern)
+    // Cow::Owned(vec![].into())
 }
 
 impl<'l, R> DateTimeFormat<R> {
@@ -136,9 +139,9 @@ impl<'l, R> DateTimeFormat<R> {
         let calendar_data = &data.borrow().main.pl.dates.calendars.gregorian;
         let pattern = match (date_style, time_style) {
             (Some(date_style), Some(time_style)) => {
-                let mut pattern = calendar_data.date_time_formats.get(date_style.idx());
+                let pattern = calendar_data.date_time_formats.get(date_style.idx());
                 let pattern =
-                    create_date_time_pattern(&pattern, date_style, time_style, data.borrow());
+                    create_date_time_pattern(pattern, date_style, time_style, data.borrow());
                 layout2::DateTimePattern::Parsed(pattern)
             }
             (Some(date_style), None) => calendar_data.date_formats.get(date_style.idx()).clone(),
@@ -158,7 +161,7 @@ impl<'l, R> DateTimeFormat<R> {
         let mut result = String::new();
         self.calendar_data
             .borrow()
-            .format_pattern(&mut result, &self.pattern, value);
+            .format_pattern(&mut result, self.pattern.borrow(), value);
         result
     }
 }

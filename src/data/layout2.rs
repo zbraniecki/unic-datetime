@@ -1,7 +1,6 @@
 #[cfg(feature = "serde")]
 use serde::{de, Deserialize, Serialize};
 use std::borrow::Cow;
-use std::fmt;
 use std::fmt::Write;
 
 #[derive(PartialEq, Debug)]
@@ -32,7 +31,7 @@ fn format_number(
 fn get_day_of_week(year: usize, month: usize, day: usize) -> usize {
     let t = &[0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4];
     let year = if month < 3 { year - 1 } else { year };
-    return (year + year / 4 - year / 100 + year / 400 + t[month - 1] + day) % 7;
+    (year + year / 4 - year / 100 + year / 400 + t[month - 1] + day) % 7
 }
 
 impl<'l> Resource<'l> {
@@ -42,12 +41,8 @@ impl<'l> Resource<'l> {
         pattern: &DateTimePattern,
         input: &crate::DateTime,
     ) -> Result<(), std::fmt::Error> {
-        let pattern = match pattern {
-            DateTimePattern::Raw(r) => super::patterns2::parse_pattern(&r.as_ref()).unwrap(),
-            DateTimePattern::Parsed(p) => p.clone(),
-        };
         let calendar_data = &self.main.pl.dates.calendars.gregorian;
-        for elem in pattern.iter() {
+        for elem in pattern.to_parsed().iter() {
             match elem {
                 PatternElement::Literal(s) => result.write_str(s.as_ref())?,
                 PatternElement::Token(t) => match t {
@@ -302,6 +297,15 @@ pub enum DateTimePattern {
     Parsed(Cow<'static, [PatternElement]>),
 }
 
+impl DateTimePattern {
+    pub fn to_parsed(&self) -> Vec<PatternElement> {
+        match *self {
+            DateTimePattern::Raw(ref s) => super::patterns2::parse_pattern(&s.as_ref()).unwrap(),
+            DateTimePattern::Parsed(ref elements) => elements.to_vec(),
+        }
+    }
+}
+
 pub static mut in_json: bool = false;
 
 #[cfg(feature = "serde")]
@@ -311,7 +315,7 @@ impl<'de> de::Deserialize<'de> for DateTimePattern {
         impl<'de> de::Visitor<'de> for MyVisitor {
             type Value = DateTimePattern;
 
-            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+            fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
                 write!(formatter, "a potential or array of potentials")
             }
 
