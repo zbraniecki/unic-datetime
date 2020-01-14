@@ -1,12 +1,21 @@
 #[cfg(feature = "serde")]
 use serde::{de, Deserialize, Serialize};
 use std::borrow::Cow;
+use std::collections::HashMap;
 use std::fmt::Write;
 
 #[derive(PartialEq, Debug)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct Resource<'l> {
-    pub main: MainResource<'l>,
+    pub main: HashMap<Cow<'l, str>, LocaleResource<'l>>,
+}
+
+impl<'l> Resource<'l> {
+    pub fn get<'s>(&self, locale: &'s str) -> Option<&'l LocaleResource> {
+        self.main
+            .iter()
+            .find_map(|(k, v)| if *k == locale { Some(v) } else { None })
+    }
 }
 
 pub enum NamesLength {
@@ -41,7 +50,7 @@ impl<'l> Resource<'l> {
         pattern: &DateTimePattern,
         input: &crate::DateTime,
     ) -> Result<(), std::fmt::Error> {
-        let calendar_data = &self.main.pl.dates.calendars.gregorian;
+        let calendar_data = &self.get("pl").unwrap().dates.calendars.gregorian;
         for elem in pattern.to_parsed().iter() {
             match elem {
                 PatternElement::Literal(s) => result.write_str(s.as_ref())?,
@@ -50,16 +59,19 @@ impl<'l> Resource<'l> {
                         let day_name = &calendar_data
                             .days
                             .get_list(false, NamesLength::WIDE)
+                            .unwrap()
                             .get(get_day_of_week(input.year, input.month, input.day));
                         result.write_str(day_name.as_ref())?
                     }
                     DateTimeToken::DayNumeric => format_number(&mut result, input.day, false)?,
                     DateTimeToken::Day2digit => format_number(&mut result, input.day, true)?,
+                    DateTimeToken::MonthNumeric => format_number(&mut result, input.month, false)?,
                     DateTimeToken::Month2digit => format_number(&mut result, input.month, true)?,
                     DateTimeToken::MonthNameLong => {
                         let month_name = &calendar_data
                             .months
                             .get_list(false, NamesLength::WIDE)
+                            .unwrap()
                             .get(input.month - 1);
                         result.write_str(month_name.as_ref())?
                     }
@@ -67,14 +79,22 @@ impl<'l> Resource<'l> {
                         let month_name = &calendar_data
                             .months
                             .get_list(false, NamesLength::ABBREVIATED)
+                            .unwrap()
                             .get(input.month - 1);
                         result.write_str(month_name.as_ref())?
                     }
                     DateTimeToken::YearNumeric => format_number(&mut result, input.year, false)?,
                     DateTimeToken::Year2digit => format_number(&mut result, input.year, true)?,
                     DateTimeToken::Hour2digit => format_number(&mut result, input.hour, true)?,
+                    DateTimeToken::HourNumeric => format_number(&mut result, input.hour, false)?,
                     DateTimeToken::Minute2digit => format_number(&mut result, input.minute, true)?,
+                    DateTimeToken::MinuteNumeric => {
+                        format_number(&mut result, input.minute, false)?
+                    }
                     DateTimeToken::Second2digit => format_number(&mut result, input.second, true)?,
+                    DateTimeToken::SecondNumeric => {
+                        format_number(&mut result, input.second, false)?
+                    }
 
                     DateTimeToken::ZoneLong => result.write_str("Pacific Daylight Time")?,
                     DateTimeToken::ZoneShort => result.write_str("PDT")?,
@@ -84,12 +104,6 @@ impl<'l> Resource<'l> {
         }
         Ok(())
     }
-}
-
-#[derive(PartialEq, Debug)]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-pub struct MainResource<'l> {
-    pub pl: LocaleResource<'l>,
 }
 
 #[derive(PartialEq, Debug)]
@@ -132,19 +146,20 @@ pub struct Days<'l> {
 }
 
 impl<'l> Days<'l> {
-    pub fn get_list(&self, stand_alone: bool, length: NamesLength) -> &DayList<'l> {
+    pub fn get_list(&self, stand_alone: bool, length: NamesLength) -> Option<&DayList<'l>> {
         let list = if stand_alone {
             &self.stand_alone
         } else {
             &self.format
         };
 
-        match length {
+        let list = match length {
             NamesLength::ABBREVIATED => &list.abbreviated,
             NamesLength::NARROW => &list.narrow,
             NamesLength::SHORT => &list.short,
             NamesLength::WIDE => &list.wide,
-        }
+        };
+        list.as_ref()
     }
 }
 
@@ -157,39 +172,39 @@ pub struct Months<'l> {
 }
 
 impl<'l> Months<'l> {
-    pub fn get_list(&self, stand_alone: bool, length: NamesLength) -> &MonthList<'l> {
+    pub fn get_list(&self, stand_alone: bool, length: NamesLength) -> Option<&MonthList<'l>> {
         let list = if stand_alone {
             &self.stand_alone
         } else {
             &self.format
         };
 
-        match length {
+        let list = match length {
             NamesLength::ABBREVIATED => &list.abbreviated,
             NamesLength::NARROW => &list.narrow,
-            // NamesLength::SHORT => &list.short,
+            NamesLength::SHORT => &list.short,
             NamesLength::WIDE => &list.wide,
-            _ => unimplemented!(),
-        }
+        };
+        list.as_ref()
     }
 }
 
 #[derive(PartialEq, Debug)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct DayTypes<'l> {
-    pub abbreviated: DayList<'l>,
-    pub narrow: DayList<'l>,
-    pub short: DayList<'l>,
-    pub wide: DayList<'l>,
+    pub abbreviated: Option<DayList<'l>>,
+    pub narrow: Option<DayList<'l>>,
+    pub short: Option<DayList<'l>>,
+    pub wide: Option<DayList<'l>>,
 }
 
 #[derive(PartialEq, Debug)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct MonthTypes<'l> {
-    pub abbreviated: MonthList<'l>,
-    pub narrow: MonthList<'l>,
-    // pub short: MonthList<'l>,
-    pub wide: MonthList<'l>,
+    pub abbreviated: Option<MonthList<'l>>,
+    pub narrow: Option<MonthList<'l>>,
+    pub short: Option<MonthList<'l>>,
+    pub wide: Option<MonthList<'l>>,
 }
 
 #[derive(PartialEq, Debug)]
@@ -271,21 +286,22 @@ impl<'l> MonthList<'l> {
 #[derive(PartialEq, Debug)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct Formats {
-    pub full: DateTimePattern,
-    pub long: DateTimePattern,
-    pub medium: DateTimePattern,
-    pub short: DateTimePattern,
+    pub full: Option<DateTimePattern>,
+    pub long: Option<DateTimePattern>,
+    pub medium: Option<DateTimePattern>,
+    pub short: Option<DateTimePattern>,
 }
 
 impl Formats {
-    pub fn get(&self, idx: usize) -> &DateTimePattern {
-        match idx {
+    pub fn get(&self, idx: usize) -> Option<&DateTimePattern> {
+        let pattern = match idx {
             0 => &self.full,
             1 => &self.long,
             2 => &self.medium,
             3 => &self.short,
             _ => panic!(),
-        }
+        };
+        pattern.as_ref()
     }
 }
 
@@ -306,7 +322,7 @@ impl DateTimePattern {
     }
 }
 
-pub static mut in_json: bool = false;
+pub static mut IN_JSON: bool = false;
 
 #[cfg(feature = "serde")]
 impl<'de> de::Deserialize<'de> for DateTimePattern {
@@ -332,7 +348,7 @@ impl<'de> de::Deserialize<'de> for DateTimePattern {
             }
         }
 
-        if unsafe { in_json } {
+        if unsafe { IN_JSON } {
             deserializer.deserialize_any(MyVisitor)
         } else {
             deserializer.deserialize_seq(MyVisitor)
@@ -356,12 +372,16 @@ pub enum DateTimeToken {
     MonthNameLong,        // MMMM
     MonthNameAbbreviated, // MMM
     Month2digit,          // MM
+    MonthNumeric,         // M
     YearNumeric,          // y
     Year2digit,           // yy
 
-    Hour2digit,
-    Minute2digit,
-    Second2digit,
+    Hour2digit,    // HH
+    HourNumeric,   // H
+    Minute2digit,  // mm
+    MinuteNumeric, // m
+    Second2digit,  // ss
+    SecondNumeric, // s
 
     ZoneLong,
     ZoneShort,
@@ -379,11 +399,15 @@ impl DateTimeToken {
             Self::MonthNameLong => "MonthNameLong",
             Self::MonthNameAbbreviated => "MonthNameAbbreviated",
             Self::Month2digit => "Month2digit",
+            Self::MonthNumeric => "MonthNumeric",
             Self::YearNumeric => "YearNumeric",
             Self::Year2digit => "Year2digit",
             Self::Hour2digit => "Hour2digit",
+            Self::HourNumeric => "HourNumeric",
             Self::Minute2digit => "Minute2digit",
+            Self::MinuteNumeric => "MinuteNumeric",
             Self::Second2digit => "Second2digit",
+            Self::SecondNumeric => "SecondNumeric",
             Self::ZoneLong => "ZoneLong",
             Self::ZoneShort => "ZoneShort",
             Self::Sub0 => "Sub0",

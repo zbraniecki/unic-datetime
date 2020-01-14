@@ -47,7 +47,21 @@ fn date_time(c: &mut Criterion) {
 
     #[cfg(feature = "serde")]
     c.bench_function("date_time_dynamic", |b| {
-        let data = unic_datetime::data::load::get_calendar_data("pl");
+        let data =
+            unic_datetime::data::load_json::get_calendar_data("./data/cldr-dates-modern", "pl");
+        b.iter(|| {
+            for value in values {
+                let dtf = DateTimeFormat::new(value.0, value.1, value.2, &data);
+                for date in dates {
+                    let _ = dtf.format(date);
+                }
+            }
+        })
+    });
+
+    #[cfg(feature = "serde")]
+    c.bench_function("date_time_binary", |b| {
+        let data = unic_datetime::data::load_bin::get_calendar_data("./res", "pl");
         b.iter(|| {
             for value in values {
                 let dtf = DateTimeFormat::new(value.0, value.1, value.2, &data);

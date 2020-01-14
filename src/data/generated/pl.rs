@@ -1,4 +1,4 @@
-use super::layout::*;
+use crate::data::layout::*;
 use std::borrow::Cow;
 
 pub const RESOURCE: Resource<'static> = Resource {
@@ -9,7 +9,7 @@ pub const RESOURCE: Resource<'static> = Resource {
                     gregorian: GregorianCalendar {
                         months: Months {
                             format: MonthTypes {
-                                abbreviated: MonthList {
+                                abbreviated: Some(MonthList {
                                     m1: Cow::Borrowed("sty"),
                                     m2: Cow::Borrowed("lut"),
                                     m3: Cow::Borrowed("mar"),
@@ -22,8 +22,8 @@ pub const RESOURCE: Resource<'static> = Resource {
                                     m10: Cow::Borrowed("paź"),
                                     m11: Cow::Borrowed("lis"),
                                     m12: Cow::Borrowed("gru"),
-                                },
-                                narrow: MonthList {
+                                }),
+                                narrow: Some(MonthList {
                                     m1: Cow::Borrowed("s"),
                                     m2: Cow::Borrowed("l"),
                                     m3: Cow::Borrowed("m"),
@@ -36,8 +36,9 @@ pub const RESOURCE: Resource<'static> = Resource {
                                     m10: Cow::Borrowed("p"),
                                     m11: Cow::Borrowed("l"),
                                     m12: Cow::Borrowed("g"),
-                                },
-                                wide: MonthList {
+                                }),
+                                short: None,
+                                wide: Some(MonthList {
                                     m1: Cow::Borrowed("stycznia"),
                                     m2: Cow::Borrowed("lutego"),
                                     m3: Cow::Borrowed("marca"),
@@ -50,10 +51,10 @@ pub const RESOURCE: Resource<'static> = Resource {
                                     m10: Cow::Borrowed("października"),
                                     m11: Cow::Borrowed("listopada"),
                                     m12: Cow::Borrowed("grudnia"),
-                                },
+                                }),
                             },
                             stand_alone: MonthTypes {
-                                abbreviated: MonthList {
+                                abbreviated: Some(MonthList {
                                     m1: Cow::Borrowed("sty"),
                                     m2: Cow::Borrowed("lut"),
                                     m3: Cow::Borrowed("mar"),
@@ -66,8 +67,8 @@ pub const RESOURCE: Resource<'static> = Resource {
                                     m10: Cow::Borrowed("paź"),
                                     m11: Cow::Borrowed("lis"),
                                     m12: Cow::Borrowed("gru"),
-                                },
-                                narrow: MonthList {
+                                }),
+                                narrow: Some(MonthList {
                                     m1: Cow::Borrowed("S"),
                                     m2: Cow::Borrowed("L"),
                                     m3: Cow::Borrowed("M"),
@@ -80,8 +81,9 @@ pub const RESOURCE: Resource<'static> = Resource {
                                     m10: Cow::Borrowed("P"),
                                     m11: Cow::Borrowed("L"),
                                     m12: Cow::Borrowed("G"),
-                                },
-                                wide: MonthList {
+                                }),
+                                short: None,
+                                wide: Some(MonthList {
                                     m1: Cow::Borrowed("styczeń"),
                                     m2: Cow::Borrowed("luty"),
                                     m3: Cow::Borrowed("marzec"),
@@ -94,12 +96,12 @@ pub const RESOURCE: Resource<'static> = Resource {
                                     m10: Cow::Borrowed("październik"),
                                     m11: Cow::Borrowed("listopad"),
                                     m12: Cow::Borrowed("grudzień"),
-                                },
+                                }),
                             },
                         },
                         days: Days {
                             format: DayTypes {
-                                abbreviated: DayList {
+                                abbreviated: Some(DayList {
                                     sun: Cow::Borrowed("niedz."),
                                     mon: Cow::Borrowed("pon."),
                                     tue: Cow::Borrowed("wt."),
@@ -107,8 +109,8 @@ pub const RESOURCE: Resource<'static> = Resource {
                                     thu: Cow::Borrowed("czw."),
                                     fri: Cow::Borrowed("pt."),
                                     sat: Cow::Borrowed("sob."),
-                                },
-                                narrow: DayList {
+                                }),
+                                narrow: Some(DayList {
                                     sun: Cow::Borrowed("n"),
                                     mon: Cow::Borrowed("p"),
                                     tue: Cow::Borrowed("w"),
@@ -116,8 +118,8 @@ pub const RESOURCE: Resource<'static> = Resource {
                                     thu: Cow::Borrowed("c"),
                                     fri: Cow::Borrowed("p"),
                                     sat: Cow::Borrowed("s"),
-                                },
-                                short: DayList {
+                                }),
+                                short: Some(DayList {
                                     sun: Cow::Borrowed("nie"),
                                     mon: Cow::Borrowed("pon"),
                                     tue: Cow::Borrowed("wto"),
@@ -125,8 +127,8 @@ pub const RESOURCE: Resource<'static> = Resource {
                                     thu: Cow::Borrowed("czw"),
                                     fri: Cow::Borrowed("pią"),
                                     sat: Cow::Borrowed("sob"),
-                                },
-                                wide: DayList {
+                                }),
+                                wide: Some(DayList {
                                     sun: Cow::Borrowed("niedziela"),
                                     mon: Cow::Borrowed("poniedziałek"),
                                     tue: Cow::Borrowed("wtorek"),
@@ -134,10 +136,10 @@ pub const RESOURCE: Resource<'static> = Resource {
                                     thu: Cow::Borrowed("czwartek"),
                                     fri: Cow::Borrowed("piątek"),
                                     sat: Cow::Borrowed("sobota"),
-                                },
+                                }),
                             },
                             stand_alone: DayTypes {
-                                abbreviated: DayList {
+                                abbreviated: Some(DayList {
                                     sun: Cow::Borrowed("niedz."),
                                     mon: Cow::Borrowed("pon."),
                                     tue: Cow::Borrowed("wt."),
@@ -145,8 +147,8 @@ pub const RESOURCE: Resource<'static> = Resource {
                                     thu: Cow::Borrowed("czw."),
                                     fri: Cow::Borrowed("pt."),
                                     sat: Cow::Borrowed("sob."),
-                                },
-                                narrow: DayList {
+                                }),
+                                narrow: Some(DayList {
                                     sun: Cow::Borrowed("N"),
                                     mon: Cow::Borrowed("P"),
                                     tue: Cow::Borrowed("W"),
@@ -154,8 +156,8 @@ pub const RESOURCE: Resource<'static> = Resource {
                                     thu: Cow::Borrowed("C"),
                                     fri: Cow::Borrowed("P"),
                                     sat: Cow::Borrowed("S"),
-                                },
-                                short: DayList {
+                                }),
+                                short: Some(DayList {
                                     sun: Cow::Borrowed("nie"),
                                     mon: Cow::Borrowed("pon"),
                                     tue: Cow::Borrowed("wto"),
@@ -163,8 +165,8 @@ pub const RESOURCE: Resource<'static> = Resource {
                                     thu: Cow::Borrowed("czw"),
                                     fri: Cow::Borrowed("pią"),
                                     sat: Cow::Borrowed("sob"),
-                                },
-                                wide: DayList {
+                                }),
+                                wide: Some(DayList {
                                     sun: Cow::Borrowed("niedziela"),
                                     mon: Cow::Borrowed("poniedziałek"),
                                     tue: Cow::Borrowed("wtorek"),
@@ -172,11 +174,11 @@ pub const RESOURCE: Resource<'static> = Resource {
                                     thu: Cow::Borrowed("czwartek"),
                                     fri: Cow::Borrowed("piątek"),
                                     sat: Cow::Borrowed("sobota"),
-                                },
+                                }),
                             },
                         },
                         date_formats: Formats {
-                            full: DateTimePattern::Parsed(Cow::Borrowed(&[
+                            full: Some(DateTimePattern::Parsed(Cow::Borrowed(&[
                                 PatternElement::Token(DateTimeToken::WeekDayWide),
                                 PatternElement::Literal(Cow::Borrowed(", ")),
                                 PatternElement::Token(DateTimeToken::DayNumeric),
@@ -184,31 +186,31 @@ pub const RESOURCE: Resource<'static> = Resource {
                                 PatternElement::Token(DateTimeToken::MonthNameLong),
                                 PatternElement::Literal(Cow::Borrowed(" ")),
                                 PatternElement::Token(DateTimeToken::YearNumeric),
-                            ])),
-                            long: DateTimePattern::Parsed(Cow::Borrowed(&[
+                            ]))),
+                            long: Some(DateTimePattern::Parsed(Cow::Borrowed(&[
                                 PatternElement::Token(DateTimeToken::DayNumeric),
                                 PatternElement::Literal(Cow::Borrowed(" ")),
                                 PatternElement::Token(DateTimeToken::MonthNameLong),
                                 PatternElement::Literal(Cow::Borrowed(" ")),
                                 PatternElement::Token(DateTimeToken::YearNumeric),
-                            ])),
-                            medium: DateTimePattern::Parsed(Cow::Borrowed(&[
+                            ]))),
+                            medium: Some(DateTimePattern::Parsed(Cow::Borrowed(&[
                                 PatternElement::Token(DateTimeToken::DayNumeric),
                                 PatternElement::Literal(Cow::Borrowed(" ")),
                                 PatternElement::Token(DateTimeToken::MonthNameAbbreviated),
                                 PatternElement::Literal(Cow::Borrowed(" ")),
                                 PatternElement::Token(DateTimeToken::YearNumeric),
-                            ])),
-                            short: DateTimePattern::Parsed(Cow::Borrowed(&[
+                            ]))),
+                            short: Some(DateTimePattern::Parsed(Cow::Borrowed(&[
                                 PatternElement::Token(DateTimeToken::Day2digit),
                                 PatternElement::Literal(Cow::Borrowed(".")),
                                 PatternElement::Token(DateTimeToken::Month2digit),
                                 PatternElement::Literal(Cow::Borrowed(".")),
                                 PatternElement::Token(DateTimeToken::YearNumeric),
-                            ])),
+                            ]))),
                         },
                         time_formats: Formats {
-                            full: DateTimePattern::Parsed(Cow::Borrowed(&[
+                            full: Some(DateTimePattern::Parsed(Cow::Borrowed(&[
                                 PatternElement::Token(DateTimeToken::Hour2digit),
                                 PatternElement::Literal(Cow::Borrowed(":")),
                                 PatternElement::Token(DateTimeToken::Minute2digit),
@@ -216,8 +218,8 @@ pub const RESOURCE: Resource<'static> = Resource {
                                 PatternElement::Token(DateTimeToken::Second2digit),
                                 PatternElement::Literal(Cow::Borrowed(" ")),
                                 PatternElement::Token(DateTimeToken::ZoneLong),
-                            ])),
-                            long: DateTimePattern::Parsed(Cow::Borrowed(&[
+                            ]))),
+                            long: Some(DateTimePattern::Parsed(Cow::Borrowed(&[
                                 PatternElement::Token(DateTimeToken::Hour2digit),
                                 PatternElement::Literal(Cow::Borrowed(":")),
                                 PatternElement::Token(DateTimeToken::Minute2digit),
@@ -225,41 +227,41 @@ pub const RESOURCE: Resource<'static> = Resource {
                                 PatternElement::Token(DateTimeToken::Second2digit),
                                 PatternElement::Literal(Cow::Borrowed(" ")),
                                 PatternElement::Token(DateTimeToken::ZoneShort),
-                            ])),
-                            medium: DateTimePattern::Parsed(Cow::Borrowed(&[
+                            ]))),
+                            medium: Some(DateTimePattern::Parsed(Cow::Borrowed(&[
                                 PatternElement::Token(DateTimeToken::Hour2digit),
                                 PatternElement::Literal(Cow::Borrowed(":")),
                                 PatternElement::Token(DateTimeToken::Minute2digit),
                                 PatternElement::Literal(Cow::Borrowed(":")),
                                 PatternElement::Token(DateTimeToken::Second2digit),
-                            ])),
-                            short: DateTimePattern::Parsed(Cow::Borrowed(&[
+                            ]))),
+                            short: Some(DateTimePattern::Parsed(Cow::Borrowed(&[
                                 PatternElement::Token(DateTimeToken::Hour2digit),
                                 PatternElement::Literal(Cow::Borrowed(":")),
                                 PatternElement::Token(DateTimeToken::Minute2digit),
-                            ])),
+                            ]))),
                         },
                         date_time_formats: Formats {
-                            full: DateTimePattern::Parsed(Cow::Borrowed(&[
+                            full: Some(DateTimePattern::Parsed(Cow::Borrowed(&[
                                 PatternElement::Token(DateTimeToken::Sub1),
                                 PatternElement::Literal(Cow::Borrowed(" ")),
                                 PatternElement::Token(DateTimeToken::Sub0),
-                            ])),
-                            long: DateTimePattern::Parsed(Cow::Borrowed(&[
+                            ]))),
+                            long: Some(DateTimePattern::Parsed(Cow::Borrowed(&[
                                 PatternElement::Token(DateTimeToken::Sub1),
                                 PatternElement::Literal(Cow::Borrowed(" ")),
                                 PatternElement::Token(DateTimeToken::Sub0),
-                            ])),
-                            medium: DateTimePattern::Parsed(Cow::Borrowed(&[
+                            ]))),
+                            medium: Some(DateTimePattern::Parsed(Cow::Borrowed(&[
                                 PatternElement::Token(DateTimeToken::Sub1),
                                 PatternElement::Literal(Cow::Borrowed(", ")),
                                 PatternElement::Token(DateTimeToken::Sub0),
-                            ])),
-                            short: DateTimePattern::Parsed(Cow::Borrowed(&[
+                            ]))),
+                            short: Some(DateTimePattern::Parsed(Cow::Borrowed(&[
                                 PatternElement::Token(DateTimeToken::Sub1),
                                 PatternElement::Literal(Cow::Borrowed(", ")),
                                 PatternElement::Token(DateTimeToken::Sub0),
-                            ])),
+                            ]))),
                         },
                     },
                 },

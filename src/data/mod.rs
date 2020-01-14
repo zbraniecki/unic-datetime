@@ -1,9 +1,9 @@
 pub mod layout;
 pub mod patterns;
 
-#[cfg(feature = "serde")]
-pub mod load_json;
+#[cfg(not(feature = "no-static"))]
+pub mod generated;
 #[cfg(feature = "bincode")]
 pub mod load_bin;
-#[cfg(not(feature = "no-static"))]
-pub mod pl;
+#[cfg(feature = "serde")]
+pub mod load_json;

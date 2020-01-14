@@ -6,24 +6,24 @@ use unic_datetime::data::load_json;
 use unic_datetime::data::patterns;
 
 fn parse_formats(formats: &mut layout::Formats) {
-    if let layout::DateTimePattern::Raw(ref r) = formats.full {
+    if let Some(layout::DateTimePattern::Raw(ref r)) = formats.full {
         let parsed = patterns::parse_pattern(r.as_ref()).expect("Failed to parse");
-        formats.full = layout::DateTimePattern::Parsed(parsed);
+        formats.full = Some(layout::DateTimePattern::Parsed(parsed.into()));
     }
 
-    if let layout::DateTimePattern::Raw(ref r) = formats.long {
+    if let Some(layout::DateTimePattern::Raw(ref r)) = formats.long {
         let parsed = patterns::parse_pattern(r.as_ref()).expect("Failed to parse");
-        formats.long = layout::DateTimePattern::Parsed(parsed);
+        formats.long = Some(layout::DateTimePattern::Parsed(parsed.into()));
     }
 
-    if let layout::DateTimePattern::Raw(ref r) = formats.medium {
+    if let Some(layout::DateTimePattern::Raw(ref r)) = formats.medium {
         let parsed = patterns::parse_pattern(r.as_ref()).expect("Failed to parse");
-        formats.medium = layout::DateTimePattern::Parsed(parsed);
+        formats.medium = Some(layout::DateTimePattern::Parsed(parsed.into()));
     }
 
-    if let layout::DateTimePattern::Raw(ref r) = formats.short {
+    if let Some(layout::DateTimePattern::Raw(ref r)) = formats.short {
         let parsed = patterns::parse_pattern(r.as_ref()).expect("Failed to parse");
-        formats.short = layout::DateTimePattern::Parsed(parsed);
+        formats.short = Some(layout::DateTimePattern::Parsed(parsed.into()));
     }
 }
 

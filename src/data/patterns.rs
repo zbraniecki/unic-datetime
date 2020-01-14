@@ -20,12 +20,13 @@ fn collect_literal(
     *literal_start = idx;
 }
 
-pub fn parse_pattern<'l, S: AsRef<[u8]>>(input: S) -> Result<Vec<PatternElement>, ParserError> {
-    let mut result = vec![];
+pub fn parse_pattern<S: AsRef<[u8]>>(input: S) -> Result<Vec<PatternElement>, ParserError> {
+    let mut result = Vec::with_capacity(input.as_ref().len());
 
     let mut iter = input.as_ref().iter().enumerate().peekable();
 
     let mut literal_start = 0;
+    // println!("{:#?}", String::from_utf8_lossy(input.as_ref()));
 
     while let Some((i, ch)) = iter.next() {
         match ch {
@@ -64,6 +65,7 @@ pub fn parse_pattern<'l, S: AsRef<[u8]>>(input: S) -> Result<Vec<PatternElement>
                     4 => DateTimeToken::MonthNameLong,
                     3 => DateTimeToken::MonthNameAbbreviated,
                     2 => DateTimeToken::Month2digit,
+                    1 => DateTimeToken::MonthNumeric,
                     _ => unimplemented!(),
                 };
                 literal_start += length;
@@ -122,6 +124,7 @@ pub fn parse_pattern<'l, S: AsRef<[u8]>>(input: S) -> Result<Vec<PatternElement>
                 }
                 let token = match length {
                     2 => DateTimeToken::Hour2digit,
+                    1 => DateTimeToken::HourNumeric,
                     _ => unimplemented!(),
                 };
                 literal_start += length;
@@ -136,6 +139,7 @@ pub fn parse_pattern<'l, S: AsRef<[u8]>>(input: S) -> Result<Vec<PatternElement>
                 }
                 let token = match length {
                     2 => DateTimeToken::Minute2digit,
+                    1 => DateTimeToken::MinuteNumeric,
                     _ => unimplemented!(),
                 };
                 literal_start += length;
@@ -150,6 +154,7 @@ pub fn parse_pattern<'l, S: AsRef<[u8]>>(input: S) -> Result<Vec<PatternElement>
                 }
                 let token = match length {
                     2 => DateTimeToken::Second2digit,
+                    1 => DateTimeToken::SecondNumeric,
                     _ => unimplemented!(),
                 };
                 literal_start += length;

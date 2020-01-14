@@ -6,8 +6,6 @@ pub mod data;
 use data::layout;
 use data::layout::Resource;
 
-#[cfg(not(feature = "no-static"))]
-use data::pl::RESOURCE as PL_CALENDAR_DATA;
 use std::borrow::Borrow;
 use std::borrow::Cow;
 
@@ -93,7 +91,8 @@ impl DateTimeFormat<&'static Resource<'_>> {
         date_style: Option<DateStyle>,
         time_style: Option<TimeStyle>,
     ) -> Self {
-        Self::new(locale, date_style, time_style, &PL_CALENDAR_DATA)
+        let data = crate::data::generated::get(locale);
+        Self::new(locale, date_style, time_style, &data)
     }
 }
 
@@ -103,23 +102,39 @@ fn create_date_time_pattern<'l, R: Borrow<Resource<'l>>>(
     time_style: TimeStyle,
     resource: R,
 ) -> Cow<'static, [layout::PatternElement]> {
-    let calendar_data = &resource.borrow().main.pl.dates.calendars.gregorian;
+    let calendar_data = &resource
+        .borrow()
+        .get("pl")
+        .unwrap()
+        .dates
+        .calendars
+        .gregorian;
     let mut pattern: Vec<data::layout::PatternElement> = pattern.to_parsed().to_vec();
 
-    if let Some(idx) = pattern.iter().position(|s| {
-        s == &data::layout::PatternElement::Token(data::layout::DateTimeToken::Sub1)
-    }) {
+    if let Some(idx) = pattern
+        .iter()
+        .position(|s| s == &data::layout::PatternElement::Token(data::layout::DateTimeToken::Sub1))
+    {
         pattern.splice(
             idx..=idx,
-            calendar_data.date_formats.get(date_style.idx()).to_parsed(),
+            calendar_data
+                .date_formats
+                .get(date_style.idx())
+                .unwrap()
+                .to_parsed(),
         );
     }
-    if let Some(idx) = pattern.iter().position(|s| {
-        s == &data::layout::PatternElement::Token(data::layout::DateTimeToken::Sub0)
-    }) {
+    if let Some(idx) = pattern
+        .iter()
+        .position(|s| s == &data::layout::PatternElement::Token(data::layout::DateTimeToken::Sub0))
+    {
         pattern.splice(
             idx..=idx,
-            calendar_data.time_formats.get(time_style.idx()).to_parsed(),
+            calendar_data
+                .time_formats
+                .get(time_style.idx())
+                .unwrap()
+                .to_parsed(),
         );
     }
     Cow::Owned(pattern)
@@ -135,16 +150,27 @@ impl<'l, R> DateTimeFormat<R> {
     where
         R: Borrow<Resource<'l>>,
     {
-        let calendar_data = &data.borrow().main.pl.dates.calendars.gregorian;
+        let calendar_data = &data.borrow().get("pl").unwrap().dates.calendars.gregorian;
         let pattern = match (date_style, time_style) {
             (Some(date_style), Some(time_style)) => {
-                let pattern = calendar_data.date_time_formats.get(date_style.idx());
+                let pattern = &calendar_data
+                    .date_time_formats
+                    .get(date_style.idx())
+                    .unwrap();
                 let pattern =
                     create_date_time_pattern(pattern, date_style, time_style, data.borrow());
                 layout::DateTimePattern::Parsed(pattern)
             }
-            (Some(date_style), None) => calendar_data.date_formats.get(date_style.idx()).clone(),
-            (None, Some(time_style)) => calendar_data.time_formats.get(time_style.idx()).clone(),
+            (Some(date_style), None) => calendar_data
+                .date_formats
+                .get(date_style.idx())
+                .unwrap()
+                .clone(),
+            (None, Some(time_style)) => calendar_data
+                .time_formats
+                .get(time_style.idx())
+                .unwrap()
+                .clone(),
             (None, None) => panic!(),
         };
         Self {
@@ -160,7 +186,8 @@ impl<'l, R> DateTimeFormat<R> {
         let mut result = String::new();
         self.calendar_data
             .borrow()
-            .format_pattern(&mut result, self.pattern.borrow(), value);
+            .format_pattern(&mut result, self.pattern.borrow(), value)
+            .unwrap();
         result
     }
 }
